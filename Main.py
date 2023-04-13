@@ -1,4 +1,5 @@
 import pygame
+import chess
 
 
 # Variables
@@ -20,7 +21,9 @@ def initialisation(WIDTH, HEIGHT):
     #On crée la variable qui start la partie
     
 def chess_board():
-
+    global board
+    # création de l'objet échéquier du module chess ( cela n'inclut pas l'affichage, je vais devoir tout afficher manuellement)
+    board = chess.Board()
 
     for ligne in range(8):
         for colonne in range(8):
@@ -112,11 +115,9 @@ def chess_pieces():
 def coordonees_case(x,y):
     '''
     Fonction qui convertit une position de souris ( genre 705x234 pixels) en coordonées 8x8 de case d'échecs
-    à l'aide de l'opérateur // qui donne le nombre entier d'une division, exemple si il y a un échéquier de 800x800:
-    je clique sur la case b2 en 150x150, en faisant x//taille_case j'obtiendrais 1. Or je veux obtenir 2, car b2
-    est à la 2ème ligne / colonne, donc x//taillecase + 1
+    à l'aide de l'opérateur // qui donne le nombre entier d'une division
     '''
-    return (x//TAILLE_CASE + 1), (y//TAILLE_CASE + 1)
+    return (x//TAILLE_CASE), (y//TAILLE_CASE)
 
 def main():
     
@@ -130,9 +131,42 @@ def main():
     while running :
         
         for event in pygame.event.get():
+
             # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
             if event.type == pygame.QUIT:
                 running = False
+
+            # Ecouter si il y a un clic de souris
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Vérifier que ce soit un clic gauche
+                if event.button == 1:
+                    # on utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
+                    # on les mets dans ma fonction qui transforme en case d'échéquier pour avoir les cases
+                    x, y = coordonees_case(event.pos[0], event.pos[1])
+                    print(event.pos[0], event.pos[1], x, y)
+
+                    # Maintenant on veut convertir MON format de coordonée à celui du module chess, en utilisant chess.square
+                    # Le format du module est le suivant : en haut à gauche c'est 1, et en bas à droite 64
+                    # position est donc la position de la pièce utilisable par le module chess
+                    position = int(chess.square(x,y))
+                    print(position)
+
+                    # Pour savoir la pièce qu'il y a à cette position : 
+                    piece = board.piece_at(position)
+                    print(piece)
+
+                    # Si c'est au tour des blancs et qu'une pièce blanche est sélectionnée, on va rentrer dans le mouvement
+                    # Donc y'a deux conditions à chequer :
+                    # Je note juste que chess.Color() retourne true si la pièce est blanche et board.turn() returne true aussi si
+                    # c'est au tour de jouer
+                    # Piece vaut None si aucune pièce n'est sélectionnée
+                    if piece:
+                        if piece.color == board.turn:
+                            # On attend la case ou le gars veut la bouger
+                            # Ici !
+
+
+
 
         
         pygame.display.update()
