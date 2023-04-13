@@ -1,5 +1,6 @@
 import pygame
 
+
 # Variables
 WIDTH, HEIGHT = 500, 500
 TAILLE_CASE = WIDTH/8
@@ -107,6 +108,15 @@ def chess_pieces():
                 screen.blit(image, (6*TAILLE_CASE, 0*TAILLE_CASE))
 
             counter_test += 1
+
+def coordonees_case(x,y):
+    '''
+    Fonction qui convertit une position de souris ( genre 705x234 pixels) en coordonées 8x8 de case d'échecs
+    à l'aide de l'opérateur // qui donne le nombre entier d'une division, exemple si il y a un échéquier de 800x800:
+    je clique sur la case b2 en 150x150, en faisant x//taille_case j'obtiendrais 1. Or je veux obtenir 2, car b2
+    est à la 2ème ligne / colonne, donc x//taillecase + 1
+    '''
+    return (x//TAILLE_CASE + 1), (y//TAILLE_CASE + 1)
 
 def main():
     
