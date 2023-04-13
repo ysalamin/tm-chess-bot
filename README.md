@@ -6,3 +6,5 @@ Youtube
 https://python-chess.readthedocs.io/en/latest/core.html
 13.04 12h58 :
 6 pomodoros et ligne 166
+
+le soit : lige 165

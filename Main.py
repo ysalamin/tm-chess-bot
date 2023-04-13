@@ -33,9 +33,9 @@ def chess_board():
 
             # Si c'est une case ou il faut mettre du blanc, on met du blanc. On fait 2 if pour noir et bvlanc
             if ((colonne + ligne) % 2) == 0:
-                pygame.draw.rect(screen, pygame.Color(230,230,230), square)
-            else : 
                 pygame.draw.rect(screen, pygame.Color(55,55,55), square)
+            else : 
+                pygame.draw.rect(screen, pygame.Color(230,230,230), square)
             
 def chess_pieces():
     '''
@@ -43,7 +43,7 @@ def chess_pieces():
 
     '''
     # Liste qui faciliteront mes boucles plus tard
-    couleur_piece = ["blanc", "noir"]
+    couleur_piece = ["noir", "blanc"]
     type_de_piece = ["pion", "tour", "dame", "roi", "fou", "cavalier"]
     counter_test = 0
 
@@ -126,7 +126,7 @@ def main():
     chess_board()
     chess_pieces()
     running = True
-
+    piece_saisie = None
     #Boucle de jeu
     while running :
         
@@ -143,28 +143,41 @@ def main():
                     # on utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
                     # on les mets dans ma fonction qui transforme en case d'échéquier pour avoir les cases
                     x, y = coordonees_case(event.pos[0], event.pos[1])
-                    print(event.pos[0], event.pos[1], x, y)
 
                     # Maintenant on veut convertir MON format de coordonée à celui du module chess, en utilisant chess.square
                     # Le format du module est le suivant : en haut à gauche c'est 1, et en bas à droite 64
                     # position est donc la position de la pièce utilisable par le module chess
-                    position = int(chess.square(x,y))
-                    print(position)
+                    position = int((chess.square(x,y)))
+                    #print(f"position avec la coordonée int : {position}")
 
                     # Pour savoir la pièce qu'il y a à cette position : 
                     piece = board.piece_at(position)
-                    print(piece)
+                    #print(f"la pièce sur la case : {piece}")
 
                     # Si c'est au tour des blancs et qu'une pièce blanche est sélectionnée, on va rentrer dans le mouvement
                     # Donc y'a deux conditions à chequer :
                     # Je note juste que chess.Color() retourne true si la pièce est blanche et board.turn() returne true aussi si
                     # c'est au tour de jouer
                     # Piece vaut None si aucune pièce n'est sélectionnée
-                    if piece:
-                        if piece.color == board.turn:
-                            # On attend la case ou le gars veut la bouger
-                            # Ici !
 
+                    # Si une pièce est séléctionnée
+                    # si elle est de la couleur qui doit jouer
+                    #Je m'arrête là : Faire 2 cas. Le code ici se lit quand on clique sur une case, il y a deux possibilités : soit on a deja select une piece
+                    # au préalable, soit pas encore. Dans le premier cas on fait le mouvement, dans le deuxième cas on stock la position et faudra que quand la 
+                    # boucle se refasse, on passe dans le cas 1
+                    if piece and piece.color == board.turn:
+                        piece_saisie_location = position
+                        arrivee = position
+                        coup = chess.Move(piece_saisie_location, arrivee)
+                        if coup in board.legal_moves:
+                            board.push(coup)
+                            print(board)
+                            print("------")
+
+                            # On reset les variables car on est dans une boucle
+                            piece_saisie_location = None
+                                                                
+                            
 
 
 
