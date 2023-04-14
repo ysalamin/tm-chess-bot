@@ -120,72 +120,35 @@ def coordonees_case(x,y):
     return (x//TAILLE_CASE), (y//TAILLE_CASE)
 
 def main():
-    
+
     # Initialisation, Création, Préparation et d'autres synonymes...
     initialisation(WIDTH, HEIGHT)
     chess_board()
     chess_pieces()
     running = True
     piece_saisie = None
-    #Boucle de jeu
-    while running :
-        
-        for event in pygame.event.get():
+    
+    while running : # Boucle de jeu
 
-            # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
-            if event.type == pygame.QUIT:
-                running = False
+        for event in pygame.event.get(): # On ecoute en attente d'input
 
-            # Ecouter si il y a un clic de souris
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Vérifier que ce soit un clic gauche
-                if event.button == 1:
-                    # on utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
-                    # on les mets dans ma fonction qui transforme en case d'échéquier pour avoir les cases
-                    x, y = coordonees_case(event.pos[0], event.pos[1])
-
-                    # Maintenant on veut convertir MON format de coordonée à celui du module chess, en utilisant chess.square
-                    # Le format du module est le suivant : en haut à gauche c'est 1, et en bas à droite 64
-                    # position est donc la position de la pièce utilisable par le module chess
-                    position = int((chess.square(x,y)))
-                    #print(f"position avec la coordonée int : {position}")
-
-                    # Pour savoir la pièce qu'il y a à cette position : 
-                    piece = board.piece_at(position)
-                    #print(f"la pièce sur la case : {piece}")
-
-                    # Si c'est au tour des blancs et qu'une pièce blanche est sélectionnée, on va rentrer dans le mouvement
-                    # Donc y'a deux conditions à chequer :
-                    # Je note juste que chess.Color() retourne true si la pièce est blanche et board.turn() returne true aussi si
-                    # c'est au tour de jouer
-                    # Piece vaut None si aucune pièce n'est sélectionnée
-
-                    # Si une pièce est séléctionnée
-                    # si elle est de la couleur qui doit jouer
-                    #Je m'arrête là : Faire 2 cas. Le code ici se lit quand on clique sur une case, il y a deux possibilités : soit on a deja select une piece
-                    # au préalable, soit pas encore. Dans le premier cas on fait le mouvement, dans le deuxième cas on stock la position et faudra que quand la 
-                    # boucle se refasse, on passe dans le cas 1
-                    if piece and piece.color == board.turn:
-                        piece_saisie_location = position
-                        arrivee = position
-                        coup = chess.Move(piece_saisie_location, arrivee)
-                        if coup in board.legal_moves:
-                            board.push(coup)
-                            print(board)
-                            print("------")
-
-                            # On reset les variables car on est dans une boucle
-                            piece_saisie_location = None
-                                                                
-                            
-
-
-
-        
-        pygame.display.update()
-        clock.tick(30)
-
-    #Quitte tout
-    pygame.quit()
-
+            if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
+                running = False # Quitte la boucle
+            elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
+                if event.button == 1: # Vérifier que c'est un clic gauche
+                    x, y = coordonees_case(event.pos[0], event.pos[1]) # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
+                    position = int((chess.square(x,y))) # Conversion en coordonée du module chess
+                    piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laquelle )
+                    if piece_saisie == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
+                        piece_saisie = position # On définit alors qu'une pièce est saisie, et on lui assigne sa position
+                    elif piece_saisie: # Deuxième cas : une pièce est saisie
+                            arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
+                            coup = chess.Move(piece_saisie, arrivee) # On définit le mouvement
+                            if coup in board.legal_moves: # On regarde si il est légal
+                                board.push(coup) # On effectue le mouvement    
+                                piece_saisie = None # On réinitialise nos variables
+                                print(board) # Affichage du board en ascii pour s'y retrouver
+        pygame.display.update() # Update l'affichage
+        clock.tick(30) # Pour gérer le temps, j'en sais pas trop plus
+    pygame.quit() # Ferme l'interface
 main()
