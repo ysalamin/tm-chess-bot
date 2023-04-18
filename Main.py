@@ -119,6 +119,23 @@ def coordonees_case(x,y):
     '''
     return (x//TAILLE_CASE), (y//TAILLE_CASE)
 
+def update_board(start, end):
+    '''
+    Update le mouvement après affichage
+    '''
+    # Avoir les coordonées dont on a besoin
+    print(start, end) # Là on a les coordonées en mode chess.square, donc un int. Pour repasser en 2 coordonée ( pixel )
+    pixels_depart = chess.board_coords_to_pixels(start)
+    pixels_arrivee = chess.board_coords_to_pixels(end)
+    print(pixels_depart, pixels_arrivee)
+
+    # Effacer la pièce du carré
+    square = pygame.rect()
+
+    # Dessiner la nouvelle piece
+    # Flip ?
+
+
 def main():
 
     # Initialisation, Création, Préparation et d'autres synonymes...
@@ -134,6 +151,8 @@ def main():
 
             if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
                 running = False # Quitte la boucle
+
+            # Mouvement ###########################
             elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
                 if event.button == 1: # Vérifier que c'est un clic gauche
                     x, y = coordonees_case(event.pos[0], event.pos[1]) # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
@@ -146,8 +165,11 @@ def main():
                             coup = chess.Move(piece_saisie, arrivee) # On définit le mouvement
                             if coup in board.legal_moves: # On regarde si il est légal
                                 board.push(coup) # On effectue le mouvement    
+                                update_board(piece_saisie, arrivee)
                                 piece_saisie = None # On réinitialise nos variables
                                 print(board) # Affichage du board en ascii pour s'y retrouver
+            #######################################
+
         pygame.display.update() # Update l'affichage
         clock.tick(30) # Pour gérer le temps, j'en sais pas trop plus
     pygame.quit() # Ferme l'interface
