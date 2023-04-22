@@ -5,6 +5,7 @@ import chess
 # Variables
 WIDTH, HEIGHT = 500, 500
 TAILLE_CASE = WIDTH/8
+flip_board = True
 
 def initialisation(WIDTH, HEIGHT):
     global clock
@@ -33,9 +34,9 @@ def chess_board():
 
             # Si c'est une case ou il faut mettre du blanc, on met du blanc. On fait 2 if pour noir et bvlanc
             if ((colonne + ligne) % 2) == 0:
-                pygame.draw.rect(screen, pygame.Color(55,55,55), square)
-            else : 
                 pygame.draw.rect(screen, pygame.Color(230,230,230), square)
+            else : 
+                pygame.draw.rect(screen, pygame.Color(55,55,55), square)
             
 def chess_pieces():
     '''
@@ -43,7 +44,7 @@ def chess_pieces():
 
     '''
     # Liste qui faciliteront mes boucles plus tard
-    couleur_piece = ["noir", "blanc"]
+    couleur_piece = ["blanc", "noir"]
     type_de_piece = ["pion", "tour", "dame", "roi", "fou", "cavalier"]
     counter_test = 0
 
@@ -150,25 +151,35 @@ def update_board(start, end):
     '''
     Update le mouvement après affichage
     '''
-    # Avoir les coordonées dont on a besoin, en coordonee_case
+    # Régler un bug de symétrie :
+
+    start_x = start[0]
+    start_y = 7-start[1]
+
+    end_x = end[0]
+    end_y = end[1]
 
 
     # Effacer la pièce du carré ( on dessine un carré par dessus)
-    square = pygame.Rect(start[0] * TAILLE_CASE, start[1]* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
-    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((start[0] + start[1]) % 2 ==1) else pygame.Color(55,55,55), square)
+    square = pygame.Rect(start_x * TAILLE_CASE, start_y* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((start_x + start_y) % 2 ==0) else pygame.Color(55,55,55), square)
 
 
     # Dessiner la nouvelle piece
 
     # Bug rencontré : quand on mangeait une pièce, elle était tjr affichée derrière, car j'avais pas effacer le square de fin
-    square = pygame.Rect(end[0] * TAILLE_CASE, end[1]* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
-    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((start[0] + start[1]) % 2 ==1) else pygame.Color(55,55,55), square)
+    square = pygame.Rect(end_x * TAILLE_CASE, end_y* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((end_x + end_y) % 2 ==0) else pygame.Color(55,55,55), square)
 
-    piece = board.piece_at(chess.square(int(end[0]), int(end[1])))
+ 
+    piece = board.piece_at(chess.square(int(end_x), int(end_y)))
+
+    
     piece = traduction(str(piece)) #  Avant : Q, après : dame_blanc
+    
     image = pygame.image.load(f"pieces/{piece}.png")
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
-    screen.blit(image, (TAILLE_CASE*end[0], TAILLE_CASE*end[1]))
+    screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
     
 
 
@@ -192,8 +203,12 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
                 if event.button == 1: # Vérifier que c'est un clic gauche
                     x, y = coordonees_case(event.pos[0], event.pos[1]) # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
+                    y = 7-y
+                    
                     position = int((chess.square(x,y))) # Conversion en coordonée du module chess
+                    
                     piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laquelle )
+                    print(x,y, position, piece)
                     if piece_saisie == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
                         piece_saisie = position # On définit alors qu'une pièce est saisie, et on lui assigne sa position
                         temp = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
@@ -201,7 +216,8 @@ def main():
                             arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
                             coup = chess.Move(piece_saisie, arrivee) # On définit le mouvement
                             if coup in board.legal_moves: # On regarde si il est légal
-                                board.push(coup) # On effectue le mouvement    
+                                board.push(coup) # On effectue le mouvement   
+                                print(f"Le coup a été effectué, j'ai bougé la piece {board.piece_at(piece_saisie)} de {piece_saisie} vers {arrivee}") 
                                 update_board(temp, (x,y)) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
                                 piece_saisie = None # On réinitialise nos variables
                                 print(board) # Affichage du board en ascii pour s'y retrouver
