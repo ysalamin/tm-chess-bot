@@ -4,7 +4,6 @@ Travail de Maturité / Intelligence artificielle aux échecs
 Pygame documentation
 Youtube
 https://python-chess.readthedocs.io/en/latest/core.html
-13.04 12h58 :
 
-Bug à résoudre : L'échéquier inversé
-Si on clique sur la pièce, faire un autre move
+problème : Lorsqu'une pièce mange une autre, y'a un truc avec la piece en sélection qui déconne
+Pour l'instant l'évaluation de position fait pas encore les cases controlées, juste la somme des pièces

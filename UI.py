@@ -1,13 +1,20 @@
 import pygame
 import chess
+import AI_test
+import traduction
 
 
 # Variables
-WIDTH, HEIGHT = 500, 500
-TAILLE_CASE = WIDTH/8
-flip_board = True
+WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
+TAILLE_CASE = WIDTH/8 # Chaque case représente un huitième des dimensions vu que c'est un échéquier de 8x8
+flip_board = True # J'en ai plus besoin je crois
+joueur = "blanc" # Couleur du joueur
+ordi = "noir" # Couleur de l'ordi
 
 def initialisation(WIDTH, HEIGHT):
+    '''
+    
+    '''
     global clock
     global screen
     # Initialisation de l'interface graphique
@@ -120,31 +127,7 @@ def coordonees_case(x,y):
     '''
     return (x//TAILLE_CASE), (y//TAILLE_CASE)
 
-def traduction(piece):
-    if piece == "q":
-        return "dame_noir"
-    elif piece == "r":
-        return "tour_noir"
-    elif piece == "n":
-        return "cavalier_noir"
-    elif piece == "b":
-        return "fou_noir"
-    elif piece  == "k":
-        return "roi_noir"
-    elif piece  == "p":
-        return "pion_noir"
-    elif piece  == "Q":
-        return "dame_blanc"
-    elif piece  == "R":
-        return "tour_blanc"
-    elif piece == "N":
-        return "cavalier_blanc"
-    elif piece  == "B":
-        return "fou_blanc"
-    elif piece  == "K":
-        return "roi_blanc"
-    elif piece  == "P":
-        return "pion_blanc"
+
 
 
 def update_board(start, end):
@@ -168,14 +151,14 @@ def update_board(start, end):
     # Dessiner la nouvelle piece
 
     # Bug rencontré : quand on mangeait une pièce, elle était tjr affichée derrière, car j'avais pas effacer le square de fin
-    square = pygame.Rect(end_x * TAILLE_CASE, end_y* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
-    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((end_x + end_y) % 2 ==0) else pygame.Color(55,55,55), square)
+    square = pygame.Rect(end_x * TAILLE_CASE, (7-end_y)* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+    pygame.draw.rect(screen, pygame.Color(230,230,230) if ((end_x + end_y) % 2 ==1) else pygame.Color(55,55,55), square)
 
  
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
 
     
-    piece = traduction(str(piece)) #  Avant : Q, après : dame_blanc
+    piece = traduction.traduction_piece(str(piece)) #  Avant : Q, après : dame_blanc
     
     image = pygame.image.load(f"pieces/{piece}.png")
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
@@ -208,7 +191,7 @@ def main():
                     position = int((chess.square(x,y))) # Conversion en coordonée du module chess
                     
                     piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laquelle )
-                    print(x,y, position, piece)
+
                     if piece_saisie == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
                         piece_saisie = position # On définit alors qu'une pièce est saisie, et on lui assigne sa position
                         temp = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
@@ -216,11 +199,19 @@ def main():
                             arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
                             coup = chess.Move(piece_saisie, arrivee) # On définit le mouvement
                             if coup in board.legal_moves: # On regarde si il est légal
+                                
+                                # Coup Joueur
                                 board.push(coup) # On effectue le mouvement   
-                                print(f"Le coup a été effectué, j'ai bougé la piece {board.piece_at(piece_saisie)} de {piece_saisie} vers {arrivee}") 
                                 update_board(temp, (x,y)) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
+                                
+                                # Coup AI
+                                coup_ordi = AI_test.meilleur_coup(board,ordi) # Meilleur coup
+                                board.push(coup_ordi) # On le bouge dans la logique
+                                t = traduction.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
+                                update_board(t[0], t[1] ) # On le bouge graphiquement
+
                                 piece_saisie = None # On réinitialise nos variables
-                                print(board) # Affichage du board en ascii pour s'y retrouver
+                                #print(board) # Affichage du board en ascii pour s'y retrouver
             #######################################
 
         pygame.display.update() # Update l'affichage
