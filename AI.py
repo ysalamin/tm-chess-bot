@@ -18,8 +18,10 @@ def eval_position(pos, couleur):
             # Si il est blanc on garde les valeurs de base ( positif pour les blancs ), sinon on inverse
             if couleur =="blanc":
                 valeur_totale += valeurs[str(piece)]
+                valeur_totale += len(pos.attacks(case)) * 0.2
             else:
                valeur_totale -= valeurs[str(piece)]
+               valeur_totale -= len(pos.attacks(case)) * 0.2
 
     valeur_totale = round(valeur_totale)
     return valeur_totale

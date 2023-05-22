@@ -1,7 +1,7 @@
 import pygame
 import chess
-import AI_test
-import traduction
+import AI
+import Translate
 
 
 # Variables
@@ -127,9 +127,6 @@ def coordonees_case(x,y):
     '''
     return (x//TAILLE_CASE), (y//TAILLE_CASE)
 
-
-
-
 def update_board(start, end):
     '''
     Update le mouvement après affichage
@@ -158,16 +155,14 @@ def update_board(start, end):
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
 
     
-    piece = traduction.traduction_piece(str(piece)) #  Avant : Q, après : dame_blanc
+    piece = Translate.traduction_piece(str(piece)) #  Avant : Q, après : dame_blanc
     
     image = pygame.image.load(f"pieces/{piece}.png")
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
     screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
     
-
-
 def main():
-
+    
     # Initialisation, Création, Préparation et d'autres synonymes...
     initialisation(WIDTH, HEIGHT)
     chess_board()
@@ -205,9 +200,9 @@ def main():
                                 update_board(temp, (x,y)) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
                                 
                                 # Coup AI
-                                coup_ordi = AI_test.meilleur_coup(board,ordi) # Meilleur coup
+                                coup_ordi = AI.meilleur_coup(board,ordi) # Meilleur coup
                                 board.push(coup_ordi) # On le bouge dans la logique
-                                t = traduction.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
+                                t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
                                 update_board(t[0], t[1] ) # On le bouge graphiquement
 
                                 piece_saisie = None # On réinitialise nos variables
