@@ -200,7 +200,7 @@ def main():
                                 update_board(temp, (x,y)) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
                                 
                                 # Coup AI
-                                coup_ordi = AI.meilleur_coup(board,ordi) # Meilleur coup
+                                coup_ordi = AI.meilleur_coup(board, 2, ordi) # Meilleur coup
                                 board.push(coup_ordi) # On le bouge dans la logique
                                 t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
                                 update_board(t[0], t[1] ) # On le bouge graphiquement
