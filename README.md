@@ -5,4 +5,5 @@ Pygame documentation
 Youtube
 https://python-chess.readthedocs.io/en/latest/core.html
 
-Pour l'instant l'évaluation de position fait pas encore les cases controlées, juste la somme des pièces
+Je me suis arrêté en corrigeant le but des valeurs None. Maintenant il y a d'autres bugs à réglé :D
+Point positif : j'ai compris relu et annoté tout le code

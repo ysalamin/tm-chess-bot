@@ -15,21 +15,22 @@ def eval_position(pos, couleur):
     # Pour chaque case
     for case in range(64):
 
-        # La pièce qui est à cette case
+        # On regarde s'il y a une pièce
         piece = pos.piece_at(case)
         if piece != None:
 
-            # Cases disponibles au déplacement, utile pour l'évaluation
-            cases_disponibles = 0
+            # On regarde combien de move il y a de possible. Plus il y a de move possible plus elle est bien positionnée
+            move_dispo = 0
             for move in pos.legal_moves:
                 if move.from_square == case:
-                    cases_disponibles += 1
-            # Si il est blanc on garde les valeurs de base ( positif pour les blancs ), sinon on inverse
+                 move_dispo += 1
+
+            # On ajoute à la valeur de la position la pièce*10 + le nombre de move dispo ( formule arbitraire mais tt se joue la dessus)
             if couleur =="blanc":
-                valeur_totale += valeurs[str(piece)] * 10 + cases_disponibles
+                valeur_totale += valeurs[str(piece)] * 10 + move_dispo
                 
-            else:
-               valeur_totale -= valeurs[str(piece)] * 10 + cases_disponibles
+            else: # dans le cas ou la personne joue les noir, on inverse la valeur. Peu importe sa couleur + = mieux
+               valeur_totale -= valeurs[str(piece)] * 10 + move_dispo
                
 
     valeur_totale = round(valeur_totale)
@@ -44,14 +45,18 @@ def meilleur_coup(board, profondeur, couleur):
     meilleur_valeur = 0
 
     if couleur == "blanc":
-        for move in board.legal_moves:
+        for move in board.legal_moves: # Pour toutes les branches hautes de l'arbre
 
-            position = board.copy() # crée une copie de l'échéquier actuel, sur lequel on va travailler sans déranger notre partie
-            position.push(move)
+            board_temp = board.copy() # crée une copie de l'échéquier actuel, sur lequel on va travailler sans déranger notre partie
+            board_temp.push(move)
 
-            valeur = meilleur_coup(position, profondeur -1, "noir") # Fonction qui se répète, on va au coup d'après mais pour les noirs cette fois
-            
-            if valeur > meilleur_valeur:
+            # On plonge dans l'arbre en utilisant la même fonction, qui une fois atteint la profondeur retourne la valeur de la dernière branche
+            valeur = meilleur_coup(board_temp, profondeur -1, "noir") # Fonction qui se répète, on va au coup d'après mais pour les noirs cette fois
+            # Pour la ligne du dessus, on met " noir " car on veut voir les coups adverses 
+            if valeur == None:
+                valeur = -1000
+
+            if valeur > meilleur_valeur: # On s'actualise sur la meilleure valeure
                 meilleur_valeur = valeur
                 meilleur_choix = move
         return meilleur_choix
@@ -59,11 +64,14 @@ def meilleur_coup(board, profondeur, couleur):
     else : 
         for move in board.legal_moves:
 
-            position = board.copy() # crée une copie de l'échéquier actuel, sur lequel on va travailler sans déranger notre partie
-            position.push(move)
+            board_temp = board.copy() # crée une copie de l'échéquier actuel, sur lequel on va travailler sans déranger notre partie
+            board_temp.push(move)
 
-            valeur = meilleur_coup(position, profondeur -1, "blanc") # Fonction qui se répète, on va au coup d'après mais pour les blanc cette fois
-            
+            valeur = meilleur_coup(board_temp, profondeur -1, "blanc") # Fonction qui se répète, on va au coup d'après mais pour les blanc cette fois
+            # On met blanc car là on est noir, et la prochaine branche sera toujours la couleur inverse
+            if valeur == None:
+                valeur = -1000
+
             if valeur > meilleur_valeur:
                 meilleur_valeur = valeur
                 meilleur_choix = move
