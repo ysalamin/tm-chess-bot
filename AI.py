@@ -16,6 +16,7 @@ def eval_position(pos, couleur):
     for case in range(64):
 
         # On regarde s'il y a une pièce
+        
         piece = pos.piece_at(case)
         if piece != None:
 
@@ -42,7 +43,7 @@ def meilleur_coup(board, profondeur, couleur):
         return eval_position(board, couleur)
     
     meilleur_choix = None
-    meilleur_valeur = 0
+    meilleur_valeur = -1000
 
     if couleur == "blanc":
         for move in board.legal_moves: # Pour toutes les branches hautes de l'arbre
@@ -51,8 +52,11 @@ def meilleur_coup(board, profondeur, couleur):
             board_temp.push(move)
 
             # On plonge dans l'arbre en utilisant la même fonction, qui une fois atteint la profondeur retourne la valeur de la dernière branche
-            valeur = meilleur_coup(board_temp, profondeur -1, "noir") # Fonction qui se répète, on va au coup d'après mais pour les noirs cette fois
+            best_move = meilleur_coup(board_temp, profondeur -1, "noir") # Fonction qui se répète, on va au coup d'après mais pour les noirs cette fois
             # Pour la ligne du dessus, on met " noir " car on veut voir les coups adverses 
+            valeur = eval_position(board_temp, couleur) ## PB, faut que je lance avec le board et pas best move
+            # / ! \ me faut dont le board du best_move. j'essaie de mettre board_temp comme arg
+
             if valeur == None:
                 valeur = -1000
 
@@ -67,8 +71,9 @@ def meilleur_coup(board, profondeur, couleur):
             board_temp = board.copy() # crée une copie de l'échéquier actuel, sur lequel on va travailler sans déranger notre partie
             board_temp.push(move)
 
-            valeur = meilleur_coup(board_temp, profondeur -1, "blanc") # Fonction qui se répète, on va au coup d'après mais pour les blanc cette fois
+            best_move = meilleur_coup(board_temp, profondeur -1, "blanc") # Fonction qui se répète, on va au coup d'après mais pour les blanc cette fois
             # On met blanc car là on est noir, et la prochaine branche sera toujours la couleur inverse
+            valeur = eval_position(board_temp, couleur)
             if valeur == None:
                 valeur = -1000
 

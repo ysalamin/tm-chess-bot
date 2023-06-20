@@ -151,7 +151,6 @@ def update_board(start, end):
     square = pygame.Rect(end_x * TAILLE_CASE, (7-end_y)* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
     pygame.draw.rect(screen, pygame.Color(230,230,230) if ((end_x + end_y) % 2 ==1) else pygame.Color(55,55,55), square)
 
- 
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
 
     
