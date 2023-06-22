@@ -4,12 +4,21 @@ Travail de Maturité / Intelligence artificielle aux échecs
 Pygame documentation
 Youtube
 https://python-chess.readthedocs.io/en/latest/core.html
+https://python-chess.readthedocs.io/en/latest/
 
-Je me suis arrêté en corrigeant le but des valeurs None. Maintenant il y a d'autres bugs à réglé :D
-Point positif : j'ai compris relu et annoté tout le code
+
+
 bug : meilleur coup = None. car meilleure valeur = 0 et peut etre aucun coup bat cela donc ca reste none
 sol : meilleur coup = float("-inf")
 
 bug : piece = piece_at(case)
 sol : faut traduire, là c'est un int et nous on veut
-problème que je remet à plus tard : au lieu de max et minimiser, j'ai changé le signe jsp si c bien
+
+
+A améliorer : UI ( pièce sélectionnée enlevable, visible, et rock +  victoire)
+A améliorer : Alpha-Beta, Eval position avec plus de facteurs. Table de "transposition". Biblio ouverture.
+
+Ou j'en suis : Pour corriger mon erreur, je dois mettre 2 return TJR et comme ça je pourrais tjr accèder à l'eval position ( int) quand j'aurais besoin, et ne pas avoir de problème de type car j'accède au bon.
+ return meilleur_valeur, meilleur_choix en bas
+ return eval_position(board, couleur), None en haut prof 0
+valeur_au_bout, _ = meilleur_coup(board_temp, profondeur -1, couleur_coup_adverse)
