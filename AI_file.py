@@ -32,7 +32,7 @@ def eval_position(pos):
     return valeur_totale
 
 # Faire une fonction qui joue tout les coups possible et return le meilleur coup
-def meilleur_coup(board, profondeur, couleur):
+def meilleur_coup_sans_elagage(board, profondeur, couleur):
     if profondeur == 0 or board.is_game_over():
         return eval_position(board), None
     
@@ -43,7 +43,7 @@ def meilleur_coup(board, profondeur, couleur):
 
         board_temp = board.copy()
         board_temp.push(move)
-        valeur_au_bout, _ = meilleur_coup(board_temp, profondeur -1, "noir" if couleur =="blanc" else"blanc") # Pas nécéssairement le meilleur
+        valeur_au_bout, _ = meilleur_coup_sans_elagage(board_temp, profondeur -1, "noir" if couleur =="blanc" else"blanc") # Pas nécéssairement le meilleur
  
         if couleur == "blanc":
             if valeur_au_bout > meilleur_valeur: # On s'actualise sur la meilleure valeure
@@ -54,6 +54,41 @@ def meilleur_coup(board, profondeur, couleur):
             if valeur_au_bout < meilleur_valeur:
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move
+
+    return meilleur_valeur, meilleur_choix
+
+def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), beta=float("inf")):
+    if profondeur == 0 or board.is_game_over():
+        return eval_position(board), None
+    
+    meilleur_choix = None
+
+    if couleur == "blanc":
+        meilleur_valeur = -float("inf")
+        for move in board.legal_moves:
+            board_temp = board.copy()
+            board_temp.push(move)
+            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, "noir", alpha, beta)
+            if valeur_au_bout > meilleur_valeur: 
+                meilleur_valeur = valeur_au_bout
+                meilleur_choix = move 
+            alpha = max(alpha, meilleur_valeur) # On sauvegarde le meilleur coup pour les blancs dans alpha 
+            if beta <= alpha: # Cette ligne de code est clé, si le move est inutile d'avance car pas ouf, on break et on élimine la branche
+                break
+
+
+    else:
+        meilleur_valeur = float("inf")
+        for move in board.legal_moves:
+            board_temp = board.copy()
+            board_temp.push(move)
+            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, "blanc", alpha, beta)
+            if valeur_au_bout < meilleur_valeur:
+                meilleur_valeur = valeur_au_bout
+                meilleur_choix = move
+            beta = min(beta, meilleur_valeur) # On sauvegarde le pire coup pour les blancs dans beta
+            if beta <= alpha : 
+                break
 
     return meilleur_valeur, meilleur_choix
     

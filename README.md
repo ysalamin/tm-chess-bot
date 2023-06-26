@@ -16,9 +16,10 @@ sol : faut traduire, là c'est un int et nous on veut
 
 
 A améliorer : UI ( pièce sélectionnée enlevable, visible, et rock +  victoire)
-A améliorer : Alpha-Beta, Eval position avec plus de facteurs. Table de "transposition". Biblio ouverture.
+A améliorer : Table de "transposition". Biblio ouverture.¨
+A améliorer : Eval position ( sécurité du roi, controle du centre, structure des piions, pièces développées)
 
-Ou j'en suis : Pour corriger mon erreur, je dois mettre 2 return TJR et comme ça je pourrais tjr accèder à l'eval position ( int) quand j'aurais besoin, et ne pas avoir de problème de type car j'accède au bon.
- return meilleur_valeur, meilleur_choix en bas
- return eval_position(board, couleur), None en haut prof 0
-valeur_au_bout, _ = meilleur_coup(board_temp, profondeur -1, couleur_coup_adverse)
+bug : dernière rangée et sélection de pièce
+
+elagae et intelligence ! bon ( même si encore des modifs )
+maintenant il faut implémenter le rock et permettre de déselectionner une pièce. on va travailler sur le fichier main
