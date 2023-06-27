@@ -160,55 +160,65 @@ def update_board(start, end):
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
     screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
     
+def coup_joueur(coup, départ, arrivée):
+    board.push(coup) # On effectue le mouvement   
+    update_board(départ, arrivée) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
+
+def coup_ordi():
+    _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, 4, ordi) # Meilleur coup
+    board.push(coup_ordi) # On le bouge dans la logique
+    t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
+    update_board(t[0], t[1] ) # On le bouge graphiquement
+
+def update():
+    pygame.display.update() # Update l'affichage
+    clock.tick(30) # Pour gérer le temps, j'en sais pas trop plus
+
+
+def jeu():
+    piece_selectionnée = None
+    for event in pygame.event.get(): # On ecoute en attente d'input
+            if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
+                return False
+            elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
+                if event.button == 1: # Vérifier que c'est un clic gauche
+                    print(f"j'ai capté un clic")
+                    x, y = coordonees_case(event.pos[0], event.pos[1]) # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
+                    y = 7-y
+                    
+                    position = int((chess.square(x,y))) # Position de la pièce en module chess format
+                    piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laquelle )
+
+                    if piece_selectionnée == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
+                        piece_selectionnée = piece # On définit alors qu'une pièce est saisie, et on lui assigne sa position
+                        coord_piece = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
+                        départ = position
+                        print(f"départ enregistré !")
+                    elif piece_selectionnée: # Deuxième cas : une pièce est saisie
+                            arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
+                            coup = chess.Move(départ, arrivee) # On définit le mouvement
+                            print(f"arrivée enregistrée")
+                            if coup in board.legal_moves: # On regarde si il est légal
+                                print(f"On effectue un move là")
+                                coup_joueur(coup, coord_piece, (x,y))
+                                coup_ordi()
+
+                            # Si il n'est pas possible, on annule arrivée et pièce saisie ?
+                            
+                            else:
+                                print(f"là y'a eu une couille, on réinitialise")
+                                piece_selectionnée = None
+                                arrivee = None
+    return True                 
+
 def main():
-    
-    # Initialisation, Création, Préparation et d'autres synonymes...
     initialisation(WIDTH, HEIGHT)
     chess_board()
     chess_pieces()
     running = True
-    piece_saisie = None
-    
     while running : # Boucle de jeu
+        running = jeu()
+        update()
+    pygame.quit()
 
-        for event in pygame.event.get(): # On ecoute en attente d'input
-
-            if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
-                running = False # Quitte la boucle
-
-            # Mouvement ###########################
-            elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
-                if event.button == 1: # Vérifier que c'est un clic gauche
-                    x, y = coordonees_case(event.pos[0], event.pos[1]) # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
-                    y = 7-y
-                    
-                    position = int((chess.square(x,y))) # Conversion en coordonée du module chess
-                    
-                    piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laquelle )
-
-                    if piece_saisie == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
-                        piece_saisie = position # On définit alors qu'une pièce est saisie, et on lui assigne sa position
-                        temp = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
-                    elif piece_saisie: # Deuxième cas : une pièce est saisie
-                            arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
-                            coup = chess.Move(piece_saisie, arrivee) # On définit le mouvement
-                            if coup in board.legal_moves: # On regarde si il est légal
-                                
-                                # Coup Joueur
-                                board.push(coup) # On effectue le mouvement   
-                                update_board(temp, (x,y)) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
-                                
-                                # Coup AI
-                                _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, 4, ordi) # Meilleur coup
-                                board.push(coup_ordi) # On le bouge dans la logique
-                                t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
-                                update_board(t[0], t[1] ) # On le bouge graphiquement
-
-                                piece_saisie = None # On réinitialise nos variables
-                                
-            #######################################
-
-        pygame.display.update() # Update l'affichage
-        clock.tick(30) # Pour gérer le temps, j'en sais pas trop plus
-    pygame.quit() # Ferme l'interface
 main()
