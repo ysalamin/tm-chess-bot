@@ -19,7 +19,8 @@ A améliorer : UI ( pièce sélectionnée enlevable, visible, et rock +  victoir
 A améliorer : Table de "transposition". Biblio ouverture.¨
 A améliorer : Eval position ( sécurité du roi, controle du centre, structure des piions, pièces développées)
 
-bug : dernière rangée et sélection de pièce
 
-elagae et intelligence ! bon ( même si encore des modifs )
-maintenant il faut implémenter le rock et permettre de déselectionner une pièce. on va travailler sur le fichier main
+
+rock, victoire, promotion
+
+Je me suis arrêté au début de ma fonction écran de victoire !
