@@ -15,12 +15,6 @@ bug : piece = piece_at(case)
 sol : faut traduire, là c'est un int et nous on veut
 
 
-A améliorer : UI ( pièce sélectionnée enlevable, visible, et rock +  victoire)
-A améliorer : Table de "transposition". Biblio ouverture.¨
-A améliorer : Eval position ( sécurité du roi, controle du centre, structure des piions, pièces développées)
+Amélioration : Promotion, Rock, Table de transpo, biblio d'ouverture ( et le vert pk pas)
 
-
-
-rock, victoire, promotion
-
-Je me suis arrêté au début de ma fonction écran de victoire !
+En cours : promotion

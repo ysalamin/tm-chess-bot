@@ -10,6 +10,10 @@ TAILLE_CASE = WIDTH/8 # Chaque case représente un huitième des dimensions vu q
 flip_board = True # J'en ai plus besoin je crois
 joueur = "blanc" # Couleur du joueur
 ordi = "noir" # Couleur de l'ordi
+piece_selectionnée = None
+départ = None
+arrivée = None
+coord_piece = None
 profondeur = 1
 
 
@@ -20,11 +24,12 @@ def initialisation(WIDTH, HEIGHT):
     '''
     global clock
     global screen
+    global font
     # Initialisation de l'interface graphique
     pygame.init()
     # Création de la fenêtre avec les dimensions données
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    
+    font = pygame.font.SysFont("Arial", 80)
     #Titre
     pygame.display.set_caption("Chess board")
     # Création d'un objet qui est utile pour gérer le temps
@@ -163,7 +168,6 @@ def update_board(start, end):
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
     screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
     
-
 def coup_joueur(coup, départ, arrivée):
     board.push(coup) # On effectue le mouvement   
     update_board(départ, arrivée) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
@@ -187,16 +191,27 @@ def update():
     pygame.display.update() 
     clock.tick(30) 
 
-piece_selectionnée = None
-départ = None
-arrivée = None
-coord_piece = None
+def manage_promotion(arrivée, départ, coup, couleur):
+    # Pour les blancs
+    if couleur == "blanc":
+        # Si les coordonées d'arrivée sont la dernière rangée et que la piece de la case de départ est blanche:
+        if 63-arrivée < 8 and board.piece_at(départ) == "P": 
+            coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
+    else:
+        if 63-arrivée >55 and board.piece_at(départ) == "p":
+                coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
+
+    return coup
+
 
 def end_screen():
     '''
     affiche un écran de fin
     '''
-    pass
+    text = font.render("Fin de partie !", True, (200,100,200))
+    text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
+    screen.blit(text, text_rect)
+    update()
 
 def jeu(event):
     global piece_selectionnée, départ, coord_piece, arrivée
@@ -219,25 +234,29 @@ def jeu(event):
                 départ = position
                 print(f"départ enregistré, {piece_selectionnée}!")
             elif piece_selectionnée: # Deuxième cas : une pièce est saisie
-                    arrivee = position # Alors le premier clic était stoquée dans piece saisie, le deuxième position sera l'arr
-                    coup = chess.Move(départ, arrivee) # On définit le mouvement
+                    arrivée = position # Alors le premier clic était storquée dans piece saisie, le deuxième position sera l'arr
+                    coup = chess.Move(départ, arrivée) # On définit le mouvement
+                    print(départ,arrivée)
+                    coup = manage_promotion(départ,arrivée, coup, joueur)
                     print(f"arrivée enregistrée")
                     if coup in board.legal_moves: # On regarde si il est légal
                         print(f"On effectue un move là")
                         coup_joueur(coup, coord_piece, (x,y))
-                        update()
-                        coup_ordi()
+                        print(board)
+                        if board.is_game_over() == False:
+                            update()
+                            coup_ordi()
 
-                        piece_selectionnée = None
-                        départ = None
-                        arrivee = None
-                        coord_piece = None
+                            piece_selectionnée = None
+                            départ = None
+                            arrivée = None
+                            coord_piece = None
 
                     else:
                         print(f"là y'a eu une couille, on réinitialise")
                         piece_selectionnée = None
                         départ = None
-                        arrivee = None
+                        arrivée = None
                         coord_piece = None
     return True            
 
@@ -253,8 +272,7 @@ def main():
             update()
         if board.is_game_over():
             end_screen()
-
-            # Peut-être attendre un peu ?
+            pygame.time.wait(5000)
             running = False
     pygame.quit()
 
