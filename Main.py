@@ -191,20 +191,6 @@ def update():
     pygame.display.update() 
     clock.tick(30) 
 
-def check_rock(coup, couleur):
-    coup = str(coup)
-    rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
-    if coup in rock_possibles:
-        #Dessine un carré par dessus la tour du coin
-
-        # Dessines la tour au bon endroit
-        cord_new_rook = 
-
-        image = pygame.image.load(f"pieces/tour_{couleur}.png")
-        pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
-        screen.blit(image, cord_new_rook)
-
-        pass
 
 def end_screen():
     '''
@@ -233,6 +219,44 @@ def manage_promotion(départ, arrivée, coup, couleur):
                     coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
 
     return coup
+
+def check_rock(coup, couleur):
+    coup = str(coup)
+    print(f"Stage1, coup : {coup}")
+    rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
+    if coup in rock_possibles:
+        print(f"Stage 2")
+        x_square = None
+        y_square = None
+        cord_new_rook = None
+    
+        if coup == "e1g1":
+            cord_new_rook = (5*TAILLE_CASE, 7*TAILLE_CASE)
+            x_square = 7 * TAILLE_CASE
+            y_square = 7 * TAILLE_CASE
+        elif coup == "e8g8":
+            cord_new_rook = (5*TAILLE_CASE, 0*TAILLE_CASE)
+            x_square = 7 * TAILLE_CASE
+            y_square = 0 * TAILLE_CASE
+        elif coup == "e1c1":
+            cord_new_rook = (3*TAILLE_CASE, 7*TAILLE_CASE)
+            x_square = 0 * TAILLE_CASE
+            y_square = 7 * TAILLE_CASE            
+        elif coup == "e8c8":
+            cord_new_rook = (3*TAILLE_CASE, 0*TAILLE_CASE)
+            x_square = 0 * TAILLE_CASE
+            y_square = 0 * TAILLE_CASE            
+
+        print(f"Stage 3, x : {x_square}, y: {y_square}")
+
+        image = pygame.image.load(f"pieces/tour_{couleur}.png")
+        pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
+        screen.blit(image, cord_new_rook)
+
+        square = pygame.Rect(x_square * TAILLE_CASE, y_square* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+        pygame.draw.rect(screen, pygame.Color(230,230,230) if ((x_square + y_square) % 2 ==0) else pygame.Color(55,55,55), square)
+        
+        update()
 
 def jeu(event):
     global piece_selectionnée, départ, coord_piece, arrivée
@@ -265,7 +289,7 @@ def jeu(event):
                     if coup in board.legal_moves: # On regarde si il est légal
                         print(f"On effectue un move là")
                         coup_joueur(coup, coord_piece, (x,y))
-                        check_rock(coup)
+                        check_rock(coup, joueur)
                         print(board)
                         if board.is_game_over() == False:
                             update()
