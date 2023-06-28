@@ -191,18 +191,20 @@ def update():
     pygame.display.update() 
     clock.tick(30) 
 
-def manage_promotion(arrivée, départ, coup, couleur):
-    # Pour les blancs
-    if couleur == "blanc":
-        # Si les coordonées d'arrivée sont la dernière rangée et que la piece de la case de départ est blanche:
-        if 63-arrivée < 8 and board.piece_at(départ) == "P": 
-            coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
-    else:
-        if 63-arrivée >55 and board.piece_at(départ) == "p":
-                coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
+def check_rock(coup, couleur):
+    coup = str(coup)
+    rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
+    if coup in rock_possibles:
+        #Dessine un carré par dessus la tour du coin
 
-    return coup
+        # Dessines la tour au bon endroit
+        cord_new_rook = 
 
+        image = pygame.image.load(f"pieces/tour_{couleur}.png")
+        pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
+        screen.blit(image, cord_new_rook)
+
+        pass
 
 def end_screen():
     '''
@@ -212,6 +214,25 @@ def end_screen():
     text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
     screen.blit(text, text_rect)
     update()
+
+def manage_promotion(départ, arrivée, coup, couleur):
+    # Pour les blancs
+    print(f"voici les arguments de la fonction : arrivée : {arrivée}, départ : {départ}, couleur : {couleur}")
+    piece = board.piece_at(départ)
+    print("Stage 1", piece.color)
+    if piece is not None and piece.piece_type == chess.PAWN:
+        print(f"Stage 2")
+        if couleur == "blanc":
+            # Si les coordonées d'arrivée sont la dernière rangée et que la piece de la case de départ est blanche:
+            print(f"Stage 3")
+            if 63-arrivée < 8 and piece.color == chess.WHITE:
+                print(f"Stage 4")
+                coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
+        else:
+            if 63-arrivée > 55 and piece.color == chess.BLACK:
+                    coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
+
+    return coup
 
 def jeu(event):
     global piece_selectionnée, départ, coord_piece, arrivée
@@ -238,19 +259,22 @@ def jeu(event):
                     coup = chess.Move(départ, arrivée) # On définit le mouvement
                     print(départ,arrivée)
                     coup = manage_promotion(départ,arrivée, coup, joueur)
+                    print("voici le coup", coup)
+
                     print(f"arrivée enregistrée")
                     if coup in board.legal_moves: # On regarde si il est légal
                         print(f"On effectue un move là")
                         coup_joueur(coup, coord_piece, (x,y))
+                        check_rock(coup)
                         print(board)
                         if board.is_game_over() == False:
                             update()
                             coup_ordi()
 
-                            piece_selectionnée = None
-                            départ = None
-                            arrivée = None
-                            coord_piece = None
+                        piece_selectionnée = None
+                        départ = None
+                        arrivée = None
+                        coord_piece = None
 
                     else:
                         print(f"là y'a eu une couille, on réinitialise")
