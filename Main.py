@@ -234,27 +234,35 @@ def check_rock(coup, couleur):
             cord_new_rook = (5*TAILLE_CASE, 7*TAILLE_CASE)
             x_square = 7 * TAILLE_CASE
             y_square = 7 * TAILLE_CASE
+            print(f"rock1")
         elif coup == "e8g8":
             cord_new_rook = (5*TAILLE_CASE, 0*TAILLE_CASE)
             x_square = 7 * TAILLE_CASE
             y_square = 0 * TAILLE_CASE
+            print(f"rock2")
         elif coup == "e1c1":
             cord_new_rook = (3*TAILLE_CASE, 7*TAILLE_CASE)
             x_square = 0 * TAILLE_CASE
-            y_square = 7 * TAILLE_CASE            
+            y_square = 7 * TAILLE_CASE
+            print(f"rock3")                        
         elif coup == "e8c8":
             cord_new_rook = (3*TAILLE_CASE, 0*TAILLE_CASE)
             x_square = 0 * TAILLE_CASE
-            y_square = 0 * TAILLE_CASE            
+            y_square = 0 * TAILLE_CASE 
+            print(f"rock4")                       
 
         print(f"Stage 3, x : {x_square}, y: {y_square}")
+
+        # Bug, la tour ne s'efface pas
+        
+        square = pygame.Rect(x_square, y_square, TAILLE_CASE, TAILLE_CASE)
+        pygame.draw.rect(screen, pygame.Color(230,230,230) if ((x_square/TAILLE_CASE + y_square/TAILLE_CASE) % 2 ==0) else pygame.Color(55,55,55), square)
 
         image = pygame.image.load(f"pieces/tour_{couleur}.png")
         pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
         screen.blit(image, cord_new_rook)
 
-        square = pygame.Rect(x_square * TAILLE_CASE, y_square* TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
-        pygame.draw.rect(screen, pygame.Color(230,230,230) if ((x_square + y_square) % 2 ==0) else pygame.Color(55,55,55), square)
+
         
         update()
 
