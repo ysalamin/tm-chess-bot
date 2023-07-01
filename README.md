@@ -14,6 +14,8 @@ sol : meilleur coup = float("-inf")
 bug : piece = piece_at(case)
 sol : faut traduire, là c'est un int et nous on veut
 
+bug : tour s'efface pas car dimensions du carré foirées, deux fois multipliées
 
-Amélioration :  Rock, Table de transpo, biblio d'ouverture ( et le vert pk pas)
-En cours : döbuggage rock
+Amélioration :  Jouer noir,  Table de transpo, biblio d'ouverture ( et le vert pk pas)
+on va tout remettre en couleur bien propre avec un schéma bien clean
+

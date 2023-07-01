@@ -37,7 +37,7 @@ def meilleur_coup_sans_elagage(board, profondeur, couleur):
         return eval_position(board), None
     
     meilleur_choix = None
-    meilleur_valeur = -float("inf") if couleur == "blanc" else float("inf")
+    meilleur_valeur = -float("inf") if couleur == True else float("inf")
 
     for move in board.legal_moves: 
 
@@ -45,7 +45,7 @@ def meilleur_coup_sans_elagage(board, profondeur, couleur):
         board_temp.push(move)
         valeur_au_bout, _ = meilleur_coup_sans_elagage(board_temp, profondeur -1, "noir" if couleur =="blanc" else"blanc") # Pas nécéssairement le meilleur
  
-        if couleur == "blanc":
+        if couleur == True:
             if valeur_au_bout > meilleur_valeur: # On s'actualise sur la meilleure valeure
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move # Mais ce sera le move en fin d'arbre non ? pas celui actuel ? 
@@ -63,12 +63,12 @@ def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), be
     
     meilleur_choix = None
 
-    if couleur == "blanc":
+    if couleur == True:
         meilleur_valeur = -float("inf")
         for move in board.legal_moves:
             board_temp = board.copy()
             board_temp.push(move)
-            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, "noir", alpha, beta)
+            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, False, alpha, beta)
             if valeur_au_bout > meilleur_valeur: 
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move 
@@ -82,7 +82,7 @@ def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), be
         for move in board.legal_moves:
             board_temp = board.copy()
             board_temp.push(move)
-            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, "blanc", alpha, beta)
+            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, True, alpha, beta)
             if valeur_au_bout < meilleur_valeur:
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move

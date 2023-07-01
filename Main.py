@@ -3,18 +3,19 @@ import chess
 import AI_file
 import Translate
 
+# Variables importantes 
+profondeur = 1
+couleur_joueur = True # Couleur du couleur_joueur
 
 # Variables
 WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
 TAILLE_CASE = WIDTH/8 # Chaque case représente un huitième des dimensions vu que c'est un échéquier de 8x8
 flip_board = True # J'en ai plus besoin je crois
-couleur_joueur = False # Couleur du couleur_joueur
+first_turn = True
 piece_selectionnée = None
 départ = None
 arrivée = None
 coord_piece = None
-profondeur = 1
-
 
 
 def initialisation(WIDTH, HEIGHT):
@@ -39,7 +40,8 @@ def chess_board():
     global board
     # création de l'objet échéquier du module chess ( cela n'inclut pas l'affichage, je vais devoir tout afficher manuellement)
     board = chess.Board()
-
+    blanc = pygame.Color(230,230,230)
+    noir = pygame.Color(55,55,55)
     for ligne in range(8):
         for colonne in range(8):
             # Création du caré, puis on le dessine vite avant que la variable change
@@ -190,7 +192,6 @@ def update():
     pygame.display.update() 
     clock.tick(30) 
 
-
 def end_screen():
     '''
     affiche un écran de fin
@@ -202,16 +203,11 @@ def end_screen():
 
 def manage_promotion(départ, arrivée, coup, couleur):
     # Pour les blancs
-    print(f"voici les arguments de la fonction : arrivée : {arrivée}, départ : {départ}, couleur : {couleur}")
     piece = board.piece_at(départ)
-    print("Stage 1", piece.color)
     if piece is not None and piece.piece_type == chess.PAWN:
-        print(f"Stage 2")
         if couleur == True:
             # Si les coordonées d'arrivée sont la dernière rangée et que la piece de la case de départ est blanche:
-            print(f"Stage 3")
             if 63-arrivée < 8 and piece.color == chess.WHITE:
-                print(f"Stage 4")
                 coup = chess.Move(départ,arrivée, promotion=chess.QUEEN)
         else:
             if 63-arrivée > 55 and piece.color == chess.BLACK:
@@ -221,10 +217,8 @@ def manage_promotion(départ, arrivée, coup, couleur):
 
 def check_rock(coup, couleur):
     coup = str(coup)
-    print(f"Stage1, coup : {coup}")
     rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
     if coup in rock_possibles:
-        print(f"Stage 2")
         x_square = None
         y_square = None
         cord_new_rook = None
@@ -233,27 +227,20 @@ def check_rock(coup, couleur):
             cord_new_rook = (5*TAILLE_CASE, 7*TAILLE_CASE)
             x_square = 7 * TAILLE_CASE
             y_square = 7 * TAILLE_CASE
-            print(f"rock1")
         elif coup == "e8g8":
             cord_new_rook = (5*TAILLE_CASE, 0*TAILLE_CASE)
             x_square = 7 * TAILLE_CASE
             y_square = 0 * TAILLE_CASE
-            print(f"rock2")
         elif coup == "e1c1":
             cord_new_rook = (3*TAILLE_CASE, 7*TAILLE_CASE)
             x_square = 0 * TAILLE_CASE
-            y_square = 7 * TAILLE_CASE
-            print(f"rock3")                        
+            y_square = 7 * TAILLE_CASE                      
         elif coup == "e8c8":
             cord_new_rook = (3*TAILLE_CASE, 0*TAILLE_CASE)
             x_square = 0 * TAILLE_CASE
-            y_square = 0 * TAILLE_CASE 
-            print(f"rock4")                       
+            y_square = 0 * TAILLE_CASE                       
 
-        print(f"Stage 3, x : {x_square}, y: {y_square}")
 
-        # Bug, la tour ne s'efface pas
-        
         square = pygame.Rect(x_square, y_square, TAILLE_CASE, TAILLE_CASE)
         pygame.draw.rect(screen, pygame.Color(230,230,230) if ((x_square/TAILLE_CASE + y_square/TAILLE_CASE) % 2 ==0) else pygame.Color(55,55,55), square)
 
@@ -271,10 +258,14 @@ def check_rock(coup, couleur):
         update()
 
 def jeu(event):
-    global piece_selectionnée, départ, coord_piece, arrivée
-    moves = 0
+    global piece_selectionnée, départ, coord_piece, arrivée, first_turn
+
     if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
         return False
+
+    if first_turn and not couleur_joueur:
+        coup_ordi()
+        first_turn = False
     
 
     elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
@@ -285,44 +276,37 @@ def jeu(event):
             
             position = int((chess.square(x,y))) # Position de la pièce en module chess format
             piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laqifuelle )
-            if moves == 0 and couleur_joueur == False:
-                coup_ordi()
-            if piece and piece.color == couleur_joueur:
-                if piece_selectionnée == None and piece and piece.color == board.turn: # Premier cas : aucune pièce n'est en sélection
-                    piece_selectionnée = piece # On définit alors qu'une pièce est saisie, et on lui assigne sa position
-                    coord_piece = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
-                    green_circle((x,y))
-                    update()
-                    départ = position
+            print(f"piece : {piece} piece_selectionnée : {piece_selectionnée}")
 
-                elif piece_selectionnée: # Deuxième cas : une pièce est saisie
-                        arrivée = position # Alors le premier clic était storquée dans piece saisie, le deuxième position sera l'arr
-                        coup = chess.Move(départ, arrivée) # On définit le mouvement
-                        coup = manage_promotion(départ,arrivée, coup, couleur_joueur)
+            if piece_selectionnée == None and piece and piece.color == board.turn and piece.color == couleur_joueur:
+                print(f"Conditions de la mort passées")
+                piece_selectionnée = piece # On définit alors qu'une pièce est saisie, et on lui assigne sa position
+                coord_piece = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
+                green_circle((x,y))
+                update()
+                départ = position
+            elif piece_selectionnée: # Deuxième cas : une pièce est saisie
+                    arrivée = position # Alors le premier clic était storquée dans piece saisie, le deuxième position sera l'arr
+                    coup = chess.Move(départ, arrivée) # On définit le mouvement
+                    coup = manage_promotion(départ,arrivée, coup, couleur_joueur)
+                    if coup in board.legal_moves: # On regarde si il est légal
+                        coup_joueur(coup, coord_piece, (x,y))
+                        
+                        check_rock(coup, couleur_joueur)
+                        if board.is_game_over() == False:
+                            update()
+                            coup_ordi()
+                        
+                        piece_selectionnée = None
+                        départ = None
+                        arrivée = None
+                        coord_piece = None
+                    else:
+                        piece_selectionnée = None
+                        départ = None
+                        arrivée = None
+                        coord_piece = None
 
-                        if coup in board.legal_moves: # On regarde si il est légal
-                            coup_joueur(coup, coord_piece, (x,y))
-                            move += 1
-                            check_rock(coup, couleur_joueur)
-
-                            if board.is_game_over() == False:
-                                update()
-                                coup_ordi()
-                                move +=1
-
-                            piece_selectionnée = None
-                            départ = None
-                            arrivée = None
-                            coord_piece = None
-
-                        else:
-                            print(f"là y'a eu une couille, on réinitialise")
-                            piece_selectionnée = None
-                            départ = None
-                            arrivée = None
-                            coord_piece = None
-        else:
-            coup_ordi()
     return True            
 
 def main():
