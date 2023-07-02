@@ -4,7 +4,7 @@ import AI_file
 import Translate
 
 # Variables importantes 
-profondeur = 1
+profondeur = 2
 couleur_joueur = True # Couleur du couleur_joueur
 
 # Variables
@@ -176,6 +176,7 @@ def coup_joueur(coup, départ, arrivée):
 def coup_ordi():
     _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, profondeur, False if couleur_joueur else True) # Meilleur coup
     board.push(coup_ordi) # On le bouge dans la logique
+    check_rock(coup_ordi, False if couleur_joueur else True)
     t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
     update_board(t[0], t[1] ) # On le bouge graphiquement
 
@@ -296,6 +297,7 @@ def jeu(event):
                         if board.is_game_over() == False:
                             update()
                             coup_ordi()
+                            
                         
                         piece_selectionnée = None
                         départ = None
