@@ -5,7 +5,6 @@ def letter_to_cord(coord):
     # Lignes : 1 = 0
     y = int(coord[1]) - 1
     
-
     # Colonnes : a = 1
 
     if coord[0] == "a":

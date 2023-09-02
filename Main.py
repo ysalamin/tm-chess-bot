@@ -4,13 +4,12 @@ import AI_file
 import Translate
 
 # Variables importantes 
-profondeur = 2
+profondeur = 4
 couleur_joueur = True # Couleur du couleur_joueur
 
 # Variables
 WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
 TAILLE_CASE = WIDTH/8 # Chaque case représente un huitième des dimensions vu que c'est un échéquier de 8x8
-flip_board = True # J'en ai plus besoin je crois
 first_turn = True
 piece_selectionnée = None
 départ = None
@@ -280,7 +279,6 @@ def jeu(event):
             print(f"piece : {piece} piece_selectionnée : {piece_selectionnée}")
 
             if piece_selectionnée == None and piece and piece.color == board.turn and piece.color == couleur_joueur:
-                print(f"Conditions de la mort passées")
                 piece_selectionnée = piece # On définit alors qu'une pièce est saisie, et on lui assigne sa position
                 coord_piece = (x,y) # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
                 green_circle((x,y))

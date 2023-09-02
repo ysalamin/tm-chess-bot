@@ -45,19 +45,19 @@ def meilleur_coup_sans_elagage(board, profondeur, couleur):
         board_temp.push(move)
         valeur_au_bout, _ = meilleur_coup_sans_elagage(board_temp, profondeur -1, "noir" if couleur =="blanc" else"blanc") # Pas nécéssairement le meilleur
  
-        if couleur == True:
+        if couleur == True: #Blanc
             if valeur_au_bout > meilleur_valeur: # On s'actualise sur la meilleure valeure
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move # Mais ce sera le move en fin d'arbre non ? pas celui actuel ? 
         
-        else:
+        else: #Noir
             if valeur_au_bout < meilleur_valeur:
                 meilleur_valeur = valeur_au_bout
                 meilleur_choix = move
 
     return meilleur_valeur, meilleur_choix
 
-def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), beta=float("inf")):
+def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), beta=float("inf")): 
     if profondeur == 0 or board.is_game_over():
         return eval_position(board), None
     
