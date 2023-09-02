@@ -2,6 +2,8 @@ import pygame
 import chess
 import AI_file
 import Translate
+import Ouvertures
+import random as r
 
 # Variables importantes 
 profondeur = 4
@@ -10,11 +12,14 @@ couleur_joueur = True # Couleur du couleur_joueur
 # Variables
 WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
 TAILLE_CASE = WIDTH/8 # Chaque case représente un huitième des dimensions vu que c'est un échéquier de 8x8
-first_turn = True
 piece_selectionnée = None
 départ = None
 arrivée = None
 coord_piece = None
+
+opening = Ouvertures.Ouverture_Noire if couleur_joueur else Ouvertures.Ouvertures_Blanche
+opening = r.choice(opening)
+print(f"Moi, ordi, suis sensé jouer {opening}")
 
 
 def initialisation(WIDTH, HEIGHT):
@@ -172,8 +177,15 @@ def coup_joueur(coup, départ, arrivée):
     board.push(coup) # On effectue le mouvement   
     update_board(départ, arrivée) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
 
-def coup_ordi():
-    _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, profondeur, False if couleur_joueur else True) # Meilleur coup
+def coup_ordi(move_counts):
+    
+    if move_counts < len(opening) and opening[move_counts + 1] != None:
+        coup_ordi = opening[move_counts + 1]
+        coup_ordi = chess.Move.from_uci(coup_ordi)
+
+    else:
+        _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, profondeur, False if couleur_joueur else True) # Meilleur coup
+
     board.push(coup_ordi) # On le bouge dans la logique
     check_rock(coup_ordi, False if couleur_joueur else True)
     t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
@@ -263,9 +275,10 @@ def jeu(event):
     if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
         return False
 
-    if first_turn and not couleur_joueur:
-        coup_ordi()
-        first_turn = False
+    if len(board.move_stack) == 0 and not couleur_joueur:
+        coup_ordi(len(board.move_stack))
+        print(coup_ordi)
+
     
 
     elif event.type == pygame.MOUSEBUTTONDOWN: # Ecouter s'il y a un clic de souris
@@ -294,7 +307,7 @@ def jeu(event):
                         check_rock(coup, couleur_joueur)
                         if board.is_game_over() == False:
                             update()
-                            coup_ordi()
+                            coup_ordi(len(board.move_stack))
                             
                         
                         piece_selectionnée = None
@@ -314,6 +327,7 @@ def main():
     chess_board()
     chess_pieces()
     running = True
+
 
     while running : # Boucle de jeu
         for event in pygame.event.get(): # On ecoute en attente d'input
