@@ -6,8 +6,8 @@ import Ouvertures
 import random as r
 
 # Variables importantes 
-profondeur = 4
-couleur_joueur = True # Couleur du couleur_joueur
+profondeur = 2
+couleur_joueur = False# Couleur du couleur_joueur
 
 # Variables
 WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
@@ -19,7 +19,7 @@ coord_piece = None
 
 opening = Ouvertures.Ouverture_Noire if couleur_joueur else Ouvertures.Ouvertures_Blanche
 opening = r.choice(opening)
-print(f"Moi, ordi, suis sensé jouer {opening}")
+
 
 
 def initialisation(WIDTH, HEIGHT):
@@ -289,7 +289,6 @@ def jeu(event):
             
             position = int((chess.square(x,y))) # Position de la pièce en module chess format
             piece = board.piece_at(position) # Pour savoir si il y a une pièce à la position sélectionnée ( et laqifuelle )
-            print(f"piece : {piece} piece_selectionnée : {piece_selectionnée}")
 
             if piece_selectionnée == None and piece and piece.color == board.turn and piece.color == couleur_joueur:
                 piece_selectionnée = piece # On définit alors qu'une pièce est saisie, et on lui assigne sa position
