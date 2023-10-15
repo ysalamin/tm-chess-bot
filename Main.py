@@ -5,9 +5,10 @@ import Translate
 import Ouvertures
 import random as r
 
-# Variables importantes 
+# Variables à modifier
 profondeur = 2
-couleur_joueur = False# Couleur du couleur_joueur
+couleur_joueur = True # Couleur du couleur_joueur
+couleur_ordi = False if couleur_joueur else True
 
 # Variables
 WIDTH, HEIGHT = 500, 500 # Hauteur et largeur de l'interface
@@ -16,6 +17,8 @@ piece_selectionnée = None
 départ = None
 arrivée = None
 coord_piece = None
+jouer_a_rocké = False
+ordi_a_rocké = False
 
 opening = Ouvertures.Ouverture_Noire if couleur_joueur else Ouvertures.Ouvertures_Blanche
 opening = r.choice(opening)
@@ -178,16 +181,18 @@ def coup_joueur(coup, départ, arrivée):
     update_board(départ, arrivée) # Update l'affichage, temp = cases départ en mon format, xy = arrivée
 
 def coup_ordi(move_counts):
+    global jouer_a_rocké, ordi_a_rocké
     
     if move_counts < len(opening) and opening[move_counts + 1] != None:
         coup_ordi = opening[move_counts + 1]
         coup_ordi = chess.Move.from_uci(coup_ordi)
 
     else:
-        _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, profondeur, False if couleur_joueur else True) # Meilleur coup
+        _, coup_ordi = AI_file.meilleur_coup_alpha_beta(board, profondeur, couleur_ordi) # Meilleur coup
 
     board.push(coup_ordi) # On le bouge dans la logique
-    check_rock(coup_ordi, False if couleur_joueur else True)
+    
+    ordi_a_rocké = check_rock(coup_ordi, couleur_ordi, ordi_a_rocké)
     t = Translate.split(str(coup_ordi)) # On transforme une string"d2d4" en coordonée "4,0"
     update_board(t[0], t[1] ) # On le bouge graphiquement
 
@@ -227,7 +232,9 @@ def manage_promotion(départ, arrivée, coup, couleur):
 
     return coup
 
-def check_rock(coup, couleur):
+def check_rock(coup, couleur, fait):
+    if fait:
+        return True
     coup = str(coup)
     rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
     if coup in rock_possibles:
@@ -268,9 +275,11 @@ def check_rock(coup, couleur):
 
         
         update()
+        return True
+
 
 def jeu(event):
-    global piece_selectionnée, départ, coord_piece, arrivée, first_turn
+    global piece_selectionnée, départ, coord_piece, arrivée, first_turn, jouer_a_rocké, ordi_a_rocké
 
     if event.type == pygame.QUIT: # Si la croix est cliquée, quitte la boucle -> pygame.quit() sera lu
         return False
@@ -303,7 +312,7 @@ def jeu(event):
                     if coup in board.legal_moves: # On regarde si il est légal
                         coup_joueur(coup, coord_piece, (x,y))
                         
-                        check_rock(coup, couleur_joueur)
+                        jouer_a_rocké = check_rock(coup, couleur_joueur, jouer_a_rocké) 
                         if board.is_game_over() == False:
                             update()
                             coup_ordi(len(board.move_stack))
