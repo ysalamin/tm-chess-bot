@@ -1,3 +1,6 @@
+"""
+Petite base de données des ouvertures les plus populaires
+"""
 Ouvertures_Blanche = []
 Ouverture_Noire = []
 

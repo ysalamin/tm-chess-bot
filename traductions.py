@@ -1,10 +1,22 @@
+"""
+Fonctions de traductions, pour passer d'un format à un autre
+"""
+
 def letter_to_cord(coord):
+    """
+    Fonction qui convertit le format "a8" en  0,8
+
+    Args:
+        coord (string): coordonée en format échec classique
+
+    Returns:
+        tuple: coordonées en format 0,6 
+    """
     x = 0
     y = 0
 
     # Lignes : 1 = 0
     y = int(coord[1]) - 1
-    
     # Colonnes : a = 1
 
     if coord[0] == "a":
@@ -23,11 +35,19 @@ def letter_to_cord(coord):
         x = 6
     if coord[0] == "h":
         x = 7
-    
+
     tuple = (x,y)
     return tuple
 
 def split(move):
+    """sépare un coup "e2e4" en ses cases de départ et d'arrivée
+
+    Args:
+        move (move): coup, classe du module chess
+
+    Returns:
+        string: cases d'arrivées et de départ
+    """
     depart = ""
     arrivee = ""
     for i in range(0,len(move)):
@@ -40,6 +60,16 @@ def split(move):
     return d, a
 
 def traduction_piece(piece):
+    """
+    Traduit les pièces du format chess, pour correspondre au nom de mes images.
+    Pas très optimisé mais ne s'éxécute qu'une fois, donc cela n'aura pas d'impact
+    significatif sur le temps de calcul
+
+    Args:
+        piece (piece): classe du module chess
+    Returns:
+        string: noms du fichier png de la pièce correspondante
+    """
     if piece == "q":
         return "dame_noir"
     elif piece == "r":
