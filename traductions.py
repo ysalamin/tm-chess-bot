@@ -51,8 +51,10 @@ def split(move):
     depart = ""
     arrivee = ""
     for i in range(0,len(move)):
+        # Si c'est un caractère de la première moitié, elle indique la case de départ
         if i <= len(move)//2-1:
             depart += move[i]
+        # Sinon, case d'arrivée
         else:
             arrivee += move[i]
     d = letter_to_cord(depart)

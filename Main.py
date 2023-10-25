@@ -38,6 +38,7 @@ def chess_board():
     board = chess.Board()
     for ligne in range(8):
         for colonne in range(8):
+            # Création d'un carré, noir ou blanc selon la position
             square = pygame.Rect(ligne * TAILLE_CASE,
                                  colonne*TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
             if ((colonne + ligne) % 2) == 0:
@@ -142,33 +143,28 @@ def update_board(start, end):
         start (tuple): Coordonées de la pièce avant le mouvement
         end (tuple): Coordonées de la pièce après le mouvement
     """
-
-
     start_x = start[0]
     start_y = 7-start[1] # Cette ligne m'a permis de réglé un bug de symmétrie
-
     end_x = end[0]
     end_y = end[1]
 
-    # Effacer la pièce du carré ( on dessine un carré par dessus)
+    # Effacer les pièces des cases de départ et d'arrivée en redessinant un carré par-dessus
     square = pygame.Rect(start_x * TAILLE_CASE, start_y *
                          TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
     pygame.draw.rect(screen, pygame.Color(230, 230, 230) if (
         (start_x + start_y) % 2 == 0) else pygame.Color(55, 55, 55), square)
 
-    # Dessiner la nouvelle piece
-
-    # Bug rencontré : quand on mangeait une pièce, elle était tjr affichée derrière
     square = pygame.Rect(end_x * TAILLE_CASE, (7-end_y) *
                          TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
     pygame.draw.rect(screen, pygame.Color(230, 230, 230) if (
         (end_x + end_y) % 2 == 1) else pygame.Color(55, 55, 55), square)
 
+    # Quelle pièce doit-on afficher ?
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
-
     piece = traductions.traduction_piece(
         str(piece))  # Avant : Q, après : dame_blanc
 
+    # On affiche la pièce aux bonnes coordonées
     image = pygame.image.load(f"pieces/{piece}.png")
     pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
     screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
@@ -196,18 +192,19 @@ def coup_ordi(move_counts):
     Args:
         move_counts (int): compteur de coups dans la partie
     """
+    # Si on est au début de partie, on regarde dans les ouvertures
     global J_DEJA_ROCK, O_DEJA_ROCK
     if move_counts < len(opening) and opening[move_counts + 1] is not None:
         coup_ordi = opening[move_counts + 1]
         coup_ordi = chess.Move.from_uci(coup_ordi)
 
+    # Sinon, on procède à la méthode classique
     else:
         _, coup_ordi = ai_file.meilleur_coup_alpha_beta(
             board, PROFONDEUR_DE_CALCUL, COULEUR_ORDI)  # Meilleur coup
 
-    board.push(coup_ordi)  # On le bouge dans la logique
+    board.push(coup_ordi)
     O_DEJA_ROCK = check_rock(coup_ordi, COULEUR_ORDI, O_DEJA_ROCK)
-    # On transforme une string"d2d4" en coordonée "4,0"
     t = traductions.split(str(coup_ordi))
     update_board(t[0], t[1])  # On le bouge graphiquement
 
@@ -281,15 +278,19 @@ def check_rock(coup, couleur, fait):
     Returns:
         booléen: booléen qui informe si le rock a déjà été fait
     """
+    # Si le rock a déjà été effectué, on actualise la variable
     if fait:
         return True
     coup = str(coup)
     rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
+
+    # Si le joueur a les droits de rocker
     if coup in rock_possibles:
         x_square = None
         y_square = None
         cord_new_rook = None
 
+        # On mets à jour l'affichage en conséquence
         if coup == "e1g1":
             cord_new_rook = (5*TAILLE_CASE, 7*TAILLE_CASE)
             x_square = 7 * TAILLE_CASE
@@ -318,6 +319,7 @@ def check_rock(coup, couleur, fait):
         else:
             couleur = "noir"
 
+        # On affiche la tour au bon endroit
         image = pygame.image.load(f"pieces/tour_{couleur}.png")
         pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
         screen.blit(image, cord_new_rook)
@@ -338,9 +340,10 @@ def jeu(event):
     global PIECE_EN_SELECTION, DEPART, COORDONEES_PIECE
     global ARRIVEE, J_DEJA_ROCK, O_DEJA_ROCK
 
+    # On regarde si le joueur appuie sur la croix
     if event.type == pygame.QUIT:
         return False
-
+    # Si c'est l'ordi qui joue les blancs, il doit commencer
     if len(board.move_stack) == 0 and not COULEUR_JOUEUR:
         coup_ordi(len(board.move_stack))
         print(coup_ordi)
@@ -352,7 +355,7 @@ def jeu(event):
             x, y = coordonees_case(event.pos[0], event.pos[1])
             y = 7-y
 
-            # Position de la pièce en module chess format
+            # Position de la pièce en format du module chess
             position = int((chess.square(x, y)))
             # Pour savoir si il y a une pièce à la position sélectionnée ( et laqifuelle )
             piece = board.piece_at(position)
@@ -371,22 +374,18 @@ def jeu(event):
                 coup = manage_promotion(DEPART, ARRIVEE, coup, COULEUR_JOUEUR)
                 if coup in board.legal_moves:  # On regarde si il est légal
                     coup_joueur(coup, COORDONEES_PIECE, (x, y))
-
+                    # On regarde si c'est un rock
                     J_DEJA_ROCK = check_rock(
                         coup, COULEUR_JOUEUR, J_DEJA_ROCK)
                     if board.is_game_over() is False:
                         update()
-                        coup_ordi(len(board.move_stack))
+                        coup_ordi(len(board.move_stack)) # L'ordi joue après le joueur.
 
-                        PIECE_EN_SELECTION = None
-                        DEPART = None
-                        ARRIVEE = None
-                        COORDONEES_PIECE = None
-                    else:
-                        PIECE_EN_SELECTION = None
-                        DEPART = None
-                        ARRIVEE = None
-                        COORDONEES_PIECE = None
+                    PIECE_EN_SELECTION = None
+                    DEPART = None
+                    ARRIVEE = None
+                    COORDONEES_PIECE = None
+
     return True
 
 def main():
@@ -394,6 +393,8 @@ def main():
     Bloc principal du code, qui appelle toutes les autres fonctions
     """
     global screen, clock
+
+    #Initialisation
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     font = pygame.font.SysFont("Arial", 80)
@@ -403,11 +404,12 @@ def main():
     chess_pieces()
     running = True
 
-    while running:  # Boucle de jeu
-        for event in pygame.event.get():  # On ecoute en attente d'input
-            running = jeu(event)
-            update()
-        if board.is_game_over():
+    # Boucle de jeu
+    while running:
+        for event in pygame.event.get():
+            running = jeu(event) # La boucle de jeu s'effectue
+            update() # On update l'interface constamment
+        if board.is_game_over(): # Fin de partie -> écran de fin et on quitte tout
             end_screen(font)
             pygame.time.wait(5000)
             running = False
