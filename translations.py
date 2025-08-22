@@ -1,23 +1,23 @@
 """
-Fonctions de traductions, pour passer d'un format à un autre
+Translation functions, to convert from one format to another
 """
 
 def letter_to_cord(coord):
     """
-    Fonction qui convertit le format "a8" en  0,8
+    Function that converts the format "a8" to  0,8
 
     Args:
-        coord (string): coordonée en format échec classique
+        coord (string): coordinate in classic chess format
 
     Returns:
-        tuple: coordonées en format 0,6 
+        tuple: coordinates in format 0,6 
     """
     x = 0
     y = 0
 
-    # Lignes : 1 = 0
+    # Rows: 1 = 0
     y = int(coord[1]) - 1
-    # Colonnes : a = 1
+    # Columns: a = 1
 
     if coord[0] == "a":
         x = 0
@@ -40,37 +40,37 @@ def letter_to_cord(coord):
     return tuple
 
 def split(move):
-    """sépare un coup "e2e4" en ses cases de départ et d'arrivée
+    """Splits a move "e2e4" into its start and end squares
 
     Args:
-        move (move): coup, classe du module chess
+        move (move): move, chess module class
 
     Returns:
-        string: cases d'arrivées et de départ
+        string: start and end squares
     """
-    depart = ""
-    arrivee = ""
+    start = ""
+    end = ""
     for i in range(0,len(move)):
-        # Si c'est un caractère de la première moitié, elle indique la case de départ
+        # If it's a character from the first half, it indicates the start square
         if i <= len(move)//2-1:
-            depart += move[i]
-        # Sinon, case d'arrivée
+            start += move[i]
+        # Otherwise, end square
         else:
-            arrivee += move[i]
-    d = letter_to_cord(depart)
-    a = letter_to_cord(arrivee)
+            end += move[i]
+    d = letter_to_cord(start)
+    a = letter_to_cord(end)
     return d, a
 
-def traduction_piece(piece):
+def translate_piece(piece):
     """
-    Traduit les pièces du format chess, pour correspondre au nom de mes images.
-    Pas très optimisé mais ne s'éxécute qu'une fois, donc cela n'aura pas d'impact
-    significatif sur le temps de calcul
+    Translates pieces from chess format to match my image names.
+    Not very optimized but only runs once, so it won't have a significant impact
+    on calculation time
 
     Args:
-        piece (piece): classe du module chess
+        piece (piece): chess module class
     Returns:
-        string: noms du fichier png de la pièce correspondante
+        string: png filename of the corresponding piece
     """
     if piece == "q":
         return "dame_noir"

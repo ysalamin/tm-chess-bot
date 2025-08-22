@@ -1,11 +1,11 @@
 """
-    Fichier principal. Une fois pygame et python-chess téléchargés
-    ( à l'aide de pip install pygame et pip install python-chess ),
-    il est possible de modifier la Profondeur de calcul du programme pour
-    avoir un adversaire difficile (profondeur de 4), moyen ( profondeur 3)
-    ou débutant ( profondeur 2 )
+    Main file. Once pygame and python-chess are installed
+    (using pip install pygame and pip install python-chess),
+    you can modify the calculation depth of the program to
+    have a hard opponent (depth 4), medium (depth 3)
+    or beginner (depth 2)
 """
-# Importations
+# Imports
 import random as r
 import pygame
 import chess
@@ -13,404 +13,401 @@ import engine
 import translations
 import openings
 
-# A modifier
-PROFONDEUR_DE_CALCUL = 2 # Inscrivez ici la difficulté allant de 2 à 4
-COULEUR_JOUEUR = True #True = Blanc, False = Noir
+# To modify
+CALCULATION_DEPTH = 2 # Set the difficulty here from 2 to 4
+PLAYER_COLOR = True #True = White, False = Black
 
-# Autres constantes
-COULEUR_ORDI = not COULEUR_JOUEUR
-WIDTH, HEIGHT = 500, 500
-TAILLE_CASE = WIDTH/8
-PIECE_EN_SELECTION = None
-DEPART = None
-ARRIVEE = None
-COORDONEES_PIECE = None
-J_DEJA_ROCK = False
-O_DEJA_ROCK = False
-opening = openings.Ouverture_Noire if COULEUR_JOUEUR else openings.Ouvertures_Blanche
+# Other constants
+COMPUTER_COLOR = not PLAYER_COLOR
+WIDTH, HEIGHT = 512, 512
+SQUARE_SIZE = WIDTH/8
+SELECTED_PIECE = None
+START = None
+END = None
+PIECE_COORDS = None
+PLAYER_CASTLED = False
+COMPUTER_CASTLED = False
+opening = openings.White_Openings if PLAYER_COLOR else openings.Black_Openings
 opening = r.choice(opening)
 
-def chess_board():
+def draw_chess_board():
     """
-    Dessine l'échéquier
+    Draws the chessboard
     """
     global board
     board = chess.Board()
-    for ligne in range(8):
-        for colonne in range(8):
-            # Création d'un carré, noir ou blanc selon la position
-            square = pygame.Rect(ligne * TAILLE_CASE,
-                                 colonne*TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
-            if ((colonne + ligne) % 2) == 0:
+    for row in range(8):
+        for col in range(8):
+            # Create a square, black or white depending on position
+            square = pygame.Rect(row * SQUARE_SIZE,
+                                 col*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+            if ((col + row) % 2) == 0:
                 pygame.draw.rect(screen, pygame.Color(230, 230, 230), square)
             else:
                 pygame.draw.rect(screen, pygame.Color(55, 55, 55), square)
 
-def chess_pieces():
+def draw_chess_pieces():
     """
-    Affiche les pièces, à partir des images en .png
-    La fonction comporte beaucoup de "if" et n'est donc pas très optimisée,
-    ce n'est pas si grave étant donné qu'elle ne s'éxecute qu'une seule fois
+    Displays the pieces, from .png images
+    The function has many "if" statements and is not very optimized,
+    but that's not a big deal since it only runs once
     """
 
-    # Liste qui faciliteront mes boucles plus tard
-    couleur_piece = ["blanc", "noir"]
-    type_de_piece = ["pion", "tour", "dame", "roi", "fou", "cavalier"]
+    # Lists to facilitate loops later
+    piece_colors = ["blanc", "noir"]
+    piece_types = ["pion", "tour", "dame", "roi", "fou", "cavalier"]
     counter_test = 0
 
-    # On load les images et on les mets à la bonne taille
-    for couleur in couleur_piece:
-        for type in type_de_piece:
+    # Load images and set to correct size
+    for color in piece_colors:
+        for type in piece_types:
 
-            image = pygame.image.load(f"pieces/{type}_{couleur}.png")
-            pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
+            image = pygame.image.load(f"pieces/{type}_{color}.png")
+            pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
 
-            # Test pion blanc ( le premier à venir donc counter = 0)
+            # Test white pawn (first to come so counter = 0)
             if counter_test == 0:
                 for i in range(8):
-                    screen.blit(image, (TAILLE_CASE*i, 6*TAILLE_CASE))
+                    screen.blit(image, (SQUARE_SIZE*i, 6*SQUARE_SIZE))
 
-            # Tour
+            # Rook
             if counter_test == 1:
-                screen.blit(image, (0, 7*TAILLE_CASE))
-                screen.blit(image, (7*TAILLE_CASE, 7*TAILLE_CASE))
+                screen.blit(image, (0, 7*SQUARE_SIZE))
+                screen.blit(image, (7*SQUARE_SIZE, 7*SQUARE_SIZE))
 
-            # Dame
+            # Queen
             if counter_test == 2:
-                screen.blit(image, (3*TAILLE_CASE, 7*TAILLE_CASE))
+                screen.blit(image, (3*SQUARE_SIZE, 7*SQUARE_SIZE))
 
-            # Roi
+            # King
             if counter_test == 3:
-                screen.blit(image, (4*TAILLE_CASE, 7*TAILLE_CASE))
-            # Fou
+                screen.blit(image, (4*SQUARE_SIZE, 7*SQUARE_SIZE))
+            # Bishop
             if counter_test == 4:
-                screen.blit(image, (2*TAILLE_CASE, 7*TAILLE_CASE))
-                screen.blit(image, (5*TAILLE_CASE, 7*TAILLE_CASE))
-            # Cavalier
+                screen.blit(image, (2*SQUARE_SIZE, 7*SQUARE_SIZE))
+                screen.blit(image, (5*SQUARE_SIZE, 7*SQUARE_SIZE))
+            # Knight
             if counter_test == 5:
-                screen.blit(image, (1*TAILLE_CASE, 7*TAILLE_CASE))
-                screen.blit(image, (6*TAILLE_CASE, 7*TAILLE_CASE))
+                screen.blit(image, (1*SQUARE_SIZE, 7*SQUARE_SIZE))
+                screen.blit(image, (6*SQUARE_SIZE, 7*SQUARE_SIZE))
 
-            ####### NOIR #######
-            # Pion
+            ####### BLACK #######
+            # Pawn
             if counter_test == 6:
                 for i in range(8):
-                    screen.blit(image, (TAILLE_CASE*i, 1*TAILLE_CASE))
+                    screen.blit(image, (SQUARE_SIZE*i, 1*SQUARE_SIZE))
 
-            # Tour
+            # Rook
             if counter_test == 7:
-                screen.blit(image, (0*TAILLE_CASE, 0*TAILLE_CASE))
-                screen.blit(image, (7*TAILLE_CASE, 0*TAILLE_CASE))
+                screen.blit(image, (0*SQUARE_SIZE, 0*SQUARE_SIZE))
+                screen.blit(image, (7*SQUARE_SIZE, 0*SQUARE_SIZE))
 
-            # Dame
+            # Queen
             if counter_test == 8:
-                screen.blit(image, (3*TAILLE_CASE, 0*TAILLE_CASE))
+                screen.blit(image, (3*SQUARE_SIZE, 0*SQUARE_SIZE))
 
-            # Roi
+            # King
             if counter_test == 9:
-                screen.blit(image, (4*TAILLE_CASE, 0*TAILLE_CASE))
-            # Fou
+                screen.blit(image, (4*SQUARE_SIZE, 0*SQUARE_SIZE))
+            # Bishop
             if counter_test == 10:
-                screen.blit(image, (2*TAILLE_CASE, 0*TAILLE_CASE))
-                screen.blit(image, (5*TAILLE_CASE, 0*TAILLE_CASE))
-            # Cavalier
+                screen.blit(image, (2*SQUARE_SIZE, 0*SQUARE_SIZE))
+                screen.blit(image, (5*SQUARE_SIZE, 0*SQUARE_SIZE))
+            # Knight
             if counter_test == 11:
-                screen.blit(image, (1*TAILLE_CASE, 0*TAILLE_CASE))
-                screen.blit(image, (6*TAILLE_CASE, 0*TAILLE_CASE))
+                screen.blit(image, (1*SQUARE_SIZE, 0*SQUARE_SIZE))
+                screen.blit(image, (6*SQUARE_SIZE, 0*SQUARE_SIZE))
 
             counter_test += 1
 
-def coordonees_case(x, y):
-    """    Fonction qui convertit une position de souris (par exemple 705x234 pixels) 
-    en coordonées 8x8 de case d'échecs
-    à l'aide de l'opérateur // qui donne le nombre entier d'une division
+def square_coords(x, y):
+    """    Converts a mouse position (e.g. 705x234 pixels) 
+    to 8x8 chessboard coordinates
+    using // operator for integer division
 
     Args:
-        x (int): coordonée X en pixel
-        y (int): coordonée Y en pixel
+        x (int): X coordinate in pixels
+        y (int): Y coordinate in pixels
 
     Returns:
-        int: coordonées en format de 7x5 par exemple
+        int: coordinates in format like 7x5
     """
-    return (x//TAILLE_CASE), (y//TAILLE_CASE)
+    return (x//SQUARE_SIZE), (y//SQUARE_SIZE)
 
 def update_board(start, end):
     """
-    Fonction qui, éxécutée après chaque mouvement, mets à jour
-    l'échiquier graphique avec la partie logique. 
+    Updates the graphical chessboard with the logical board after each move. 
 
     Args:
-        start (tuple): Coordonées de la pièce avant le mouvement
-        end (tuple): Coordonées de la pièce après le mouvement
+        start (tuple): Piece coordinates before the move
+        end (tuple): Piece coordinates after the move
     """
     start_x = start[0]
-    start_y = 7-start[1] # Cette ligne m'a permis de réglé un bug de symmétrie
+    start_y = 7-start[1] # This line fixed a symmetry bug
     end_x = end[0]
     end_y = end[1]
 
-    # Effacer les pièces des cases de départ et d'arrivée en redessinant un carré par-dessus
-    square = pygame.Rect(start_x * TAILLE_CASE, start_y *
-                         TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+    # Erase pieces from start and end squares by redrawing a square over them
+    square = pygame.Rect(start_x * SQUARE_SIZE, start_y *
+                         SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, pygame.Color(230, 230, 230) if (
         (start_x + start_y) % 2 == 0) else pygame.Color(55, 55, 55), square)
 
-    square = pygame.Rect(end_x * TAILLE_CASE, (7-end_y) *
-                         TAILLE_CASE, TAILLE_CASE, TAILLE_CASE)
+    square = pygame.Rect(end_x * SQUARE_SIZE, (7-end_y) *
+                         SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
     pygame.draw.rect(screen, pygame.Color(230, 230, 230) if (
         (end_x + end_y) % 2 == 1) else pygame.Color(55, 55, 55), square)
 
-    # Quelle pièce doit-on afficher ?
+    # Which piece should be displayed?
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
-    piece = translations.traduction_piece(
-        str(piece))  # Avant : Q, après : dame_blanc
+    piece = translations.translate_piece(
+        str(piece))  # Before: Q, after: queen_white
 
-    # On affiche la pièce aux bonnes coordonées
+    # Display the piece at the correct coordinates
     image = pygame.image.load(f"pieces/{piece}.png")
-    pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
-    screen.blit(image, (TAILLE_CASE*end_x, TAILLE_CASE*(7-end_y)))
+    pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
+    screen.blit(image, (SQUARE_SIZE*end_x, SQUARE_SIZE*(7-end_y)))
 
-def coup_joueur(coup, depart, arrivee):
+def player_move(move, start, end):
     """
-    Fonction qui contient les deux étapes d'un coup joué par l'humain :
-    L'implémentation du coup dans la logique, et l'update graphique
+    Contains the two steps of a move played by the human:
+    The implementation of the move in logic, and the graphical update
 
     Args:
-        coup (move): coup qui est joué, selon le format du module chess
-        depart (tuple): Coordonées de la pièce avant le mouvement
-        arrivee (tuple): Coordonées de la pièce après le mouvement
+        move (move): move played, according to chess module format
+        start (tuple): Piece coordinates before the move
+        end (tuple): Piece coordinates after the move
     """
-    board.push(coup)
-    update_board(depart, arrivee)
+    board.push(move)
+    update_board(start, end)
 
-def coup_ordi(move_counts):
+def computer_move(move_count):
     """
-    Partie du code qui gère les coups de l'ordi.
-    On regarde si on s'adapte à une ouverture présente dans openings.py
-    puis on utilise le fichier ai_file pour calculer le meilleur coup, on le joue
-    et on update.
+    Handles computer moves.
+    Checks if an opening from openings.py applies,
+    then uses ai_file to calculate the best move, plays it,
+    and updates.
 
     Args:
-        move_counts (int): compteur de coups dans la partie
+        move_count (int): move counter in the game
     """
-    # Si on est au début de partie, on regarde dans les openings
-    global J_DEJA_ROCK, O_DEJA_ROCK
-    if move_counts < len(opening) and opening[move_counts + 1] is not None:
-        coup_ordi = opening[move_counts + 1]
-        coup_ordi = chess.Move.from_uci(coup_ordi)
+    # If at the start of the game, check openings
+    global PLAYER_CASTLED, COMPUTER_CASTLED
+    if move_count < len(opening) and opening[move_count + 1] is not None:
+        computer_move = opening[move_count + 1]
+        computer_move = chess.Move.from_uci(computer_move)
 
-    # Sinon, on procède à la méthode classique
+    # Otherwise, proceed with classic method
     else:
-        _, coup_ordi = engine.meilleur_coup_alpha_beta(
-            board, PROFONDEUR_DE_CALCUL, COULEUR_ORDI)  # Meilleur coup
+        _, computer_move = engine.best_move_alpha_beta(
+            board, CALCULATION_DEPTH, COMPUTER_COLOR)  # Best move
 
-    board.push(coup_ordi)
-    O_DEJA_ROCK = check_rock(coup_ordi, COULEUR_ORDI, O_DEJA_ROCK)
-    t = translations.split(str(coup_ordi))
-    update_board(t[0], t[1])  # On le bouge graphiquement
+    board.push(computer_move)
+    COMPUTER_CASTLED = check_castle(computer_move, COMPUTER_COLOR, COMPUTER_CASTLED)
+    t = translations.split(str(computer_move))
+    update_board(t[0], t[1])  # Move graphically
 
-def green_circle(coordonees):
+def green_circle(coords):
     """
-    Affiche un cercle vert qui montre la pièce en séléction
+    Displays a green circle showing the selected piece
 
     Args:
-        coordonees (tuple): coordonées où afficher le cercle vert
+        coords (tuple): coordinates to display the green circle
     """
-    cercle = pygame.image.load("other_images/circle.png")
-    cercle = pygame.transform.scale(cercle, (TAILLE_CASE, TAILLE_CASE))
+    circle = pygame.image.load("other_images/circle.png")
+    circle = pygame.transform.scale(circle, (SQUARE_SIZE, SQUARE_SIZE))
     screen.blit(
-        cercle, (TAILLE_CASE * coordonees[0], TAILLE_CASE*(7-coordonees[1])))
+        circle, (SQUARE_SIZE * coords[0], SQUARE_SIZE*(7-coords[1])))
 
 def update():
     """
-    Update l'interface graphique grâce à l'objet "clock"
+    Updates the graphical interface using the "clock" object
     """
     pygame.display.update()
     clock.tick(30)
 
 def end_screen(font):
     """
-    Affiche un texte qui informe que la partie est finie
+    Displays text informing that the game is over
 
     """
-    text = font.render("Fin de partie !", True, (200, 100, 200))
-    print(f"dfjsodfjsdoifj {type(font)}")
+    text = font.render("Game Over!", True, (200, 100, 200))
     text_rect = text.get_rect(center=(WIDTH/2, HEIGHT/2))
     screen.blit(text, text_rect)
     update()
 
-def manage_promotion(depart, arrivee, coup, couleur):
+def handle_promotion(start, end, move, color):
     """
-    S'occupe de vérifier s'il y a une promotion, et de
-    choisir la promotion dame si c'est le cas
+    Checks for promotion, and chooses queen promotion if so
 
     Args:
-        depart (tuple): cases de la pièce avant le coup
-        arrivee (tuple): cases de la pièce après le coup
-        coup (move): coup que l'on vérifie
-        couleur (booléen): couleur des pièces que l'on regarde
+        start (tuple): piece square before the move
+        end (tuple): piece square after the move
+        move (move): move to check
+        color (bool): color of the pieces to check
 
     Returns:
-        coup
+        move
     """
 
-    piece = board.piece_at(depart)
+    piece = board.piece_at(start)
     if piece is not None and piece.piece_type == chess.PAWN:
-        if couleur is True:
+        if color is True:
 
-            if 63-arrivee < 8 and piece.color == chess.WHITE:
-                coup = chess.Move(depart, arrivee, promotion=chess.QUEEN)
+            if 63-end < 8 and piece.color == chess.WHITE:
+                move = chess.Move(start, end, promotion=chess.QUEEN)
         else:
-            if 63-arrivee > 55 and piece.color == chess.BLACK:
-                coup = chess.Move(depart, arrivee, promotion=chess.QUEEN)
+            if 63-end > 55 and piece.color == chess.BLACK:
+                move = chess.Move(start, end, promotion=chess.QUEEN)
 
-    return coup
+    return move
 
-def check_rock(coup, couleur, fait):
+def check_castle(move, color, done):
     """
-    Vérifie s'il y a un rock. Si c'est le cas,
-    met à jour l'affichage en conséquence
+    Checks for castling. If so,
+    updates the display accordingly
 
     Args:
-        coup (move): coup à vérifier
-        couleur (booléen): couleur du coup
-        fait (booléen): un rock a-t-il déjà été fait ?
+        move (move): move to check
+        color (bool): color of the move
+        done (bool): has castling already been done?
 
     Returns:
-        booléen: booléen qui informe si le rock a déjà été fait
+        bool: informs if castling has already been done
     """
-    # Si le rock a déjà été effectué, on actualise la variable
-    if fait:
+    # If castling already done, update variable
+    if done:
         return True
-    coup = str(coup)
-    rock_possibles = ["e1g1", "e8g8", "e1c1", "e8c8"]
+    move = str(move)
+    possible_castles = ["e1g1", "e8g8", "e1c1", "e8c8"]
 
-    # Si le joueur a les droits de rocker
-    if coup in rock_possibles:
+    # If player has castling rights
+    if move in possible_castles:
         x_square = None
         y_square = None
-        cord_new_rook = None
+        new_rook_coords = None
 
-        # On mets à jour l'affichage en conséquence
-        if coup == "e1g1":
-            cord_new_rook = (5*TAILLE_CASE, 7*TAILLE_CASE)
-            x_square = 7 * TAILLE_CASE
-            y_square = 7 * TAILLE_CASE
-        elif coup == "e8g8":
-            cord_new_rook = (5*TAILLE_CASE, 0*TAILLE_CASE)
-            x_square = 7 * TAILLE_CASE
-            y_square = 0 * TAILLE_CASE
-        elif coup == "e1c1":
-            cord_new_rook = (3*TAILLE_CASE, 7*TAILLE_CASE)
-            x_square = 0 * TAILLE_CASE
-            y_square = 7 * TAILLE_CASE
-        elif coup == "e8c8":
-            cord_new_rook = (3*TAILLE_CASE, 0*TAILLE_CASE)
-            x_square = 0 * TAILLE_CASE
-            y_square = 0 * TAILLE_CASE
+        # Update display accordingly
+        if move == "e1g1":
+            new_rook_coords = (5*SQUARE_SIZE, 7*SQUARE_SIZE)
+            x_square = 7 * SQUARE_SIZE
+            y_square = 7 * SQUARE_SIZE
+        elif move == "e8g8":
+            new_rook_coords = (5*SQUARE_SIZE, 0*SQUARE_SIZE)
+            x_square = 7 * SQUARE_SIZE
+            y_square = 0 * SQUARE_SIZE
+        elif move == "e1c1":
+            new_rook_coords = (3*SQUARE_SIZE, 7*SQUARE_SIZE)
+            x_square = 0 * SQUARE_SIZE
+            y_square = 7 * SQUARE_SIZE
+        elif move == "e8c8":
+            new_rook_coords = (3*SQUARE_SIZE, 0*SQUARE_SIZE)
+            x_square = 0 * SQUARE_SIZE
+            y_square = 0 * SQUARE_SIZE
 
-        square = pygame.Rect(x_square, y_square, TAILLE_CASE, TAILLE_CASE)
+        square = pygame.Rect(x_square, y_square, SQUARE_SIZE, SQUARE_SIZE)
 
-        if ((x_square + y_square)/TAILLE_CASE) % 2 == 0:
+        if ((x_square + y_square)/SQUARE_SIZE) % 2 == 0:
             pygame.draw.rect(screen,pygame.Color(230,230,230), square)
         else:
             pygame.draw.rect(screen,pygame.Color(50,50,50), square)
 
-        if couleur:
-            couleur = "blanc"
+        if color:
+            color_str = "white"
         else:
-            couleur = "noir"
+            color_str = "black"
 
-        # On affiche la tour au bon endroit
-        image = pygame.image.load(f"pieces/tour_{couleur}.png")
-        pygame.transform.scale(image, (TAILLE_CASE, TAILLE_CASE))
-        screen.blit(image, cord_new_rook)
+        # Display rook at correct location
+        image = pygame.image.load(f"pieces/rook_{color_str}.png")
+        pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
+        screen.blit(image, new_rook_coords)
 
         update()
         return True
 
-def jeu(event):
-    """Boucle de jeu qui écoute les input du joueur
-    et qui s'occupe de la séléctions des pièces
+def game_loop(event):
+    """Game loop that listens to player input
+    and handles piece selection
 
     Args:
-        event (event): actions qui proviennent du joueur
+        event (event): actions from the player
 
     Returns:
-        _booléen: indique s'il faut continuer
+        _bool: indicates whether to continue
     """
-    global PIECE_EN_SELECTION, DEPART, COORDONEES_PIECE
-    global ARRIVEE, J_DEJA_ROCK, O_DEJA_ROCK
+    global SELECTED_PIECE, START, PIECE_COORDS
+    global END, PLAYER_CASTLED, COMPUTER_CASTLED
 
-    # On regarde si le joueur appuie sur la croix
+    # Check if player clicks the close button
     if event.type == pygame.QUIT:
         return False
-    # Si c'est l'ordi qui joue les blancs, il doit commencer
-    if len(board.move_stack) == 0 and not COULEUR_JOUEUR:
-        coup_ordi(len(board.move_stack))
-        print(coup_ordi)
+    # If computer plays white, it must start
+    if len(board.move_stack) == 0 and not PLAYER_COLOR:
+        computer_move(len(board.move_stack))
+        print(computer_move)
 
-    elif event.type == pygame.MOUSEBUTTONDOWN:  # Ecouter s'il y a un clic de souris
-        if event.button == 1:  # Vérifier que c'est un clic gauche
+    elif event.type == pygame.MOUSEBUTTONDOWN:  # Listen for mouse click
+        if event.button == 1:  # Check for left click
 
-            # On utilise event.pos[0] pour avoir la coordonée x, et 1 pour y.
-            x, y = coordonees_case(event.pos[0], event.pos[1])
+            # Use event.pos[0] for x coordinate, 1 for y.
+            x, y = square_coords(event.pos[0], event.pos[1])
             y = 7-y
 
-            # Position de la pièce en format du module chess
+            # Piece position in chess module format
             position = int((chess.square(x, y)))
-            # Pour savoir si il y a une pièce à la position sélectionnée ( et laqifuelle )
+            # Check if there is a piece at the selected position (and which one)
             piece = board.piece_at(position)
 
-            if PIECE_EN_SELECTION is None and piece and piece.color == board.turn and piece.color == COULEUR_JOUEUR:
-                # On définit alors qu'une pièce est saisie, et on lui assigne sa position
-                PIECE_EN_SELECTION = piece
-                # Pour l'update de l'affichage, je stock les cases dont j'ai besoin en mon format
-                COORDONEES_PIECE = (x, y)
+            if SELECTED_PIECE is None and piece and piece.color == board.turn and piece.color == PLAYER_COLOR:
+                # Define that a piece is picked, and assign its position
+                SELECTED_PIECE = piece
+                # For display update, store needed squares in my format
+                PIECE_COORDS = (x, y)
                 green_circle((x, y))
                 update()
-                DEPART = position
-            elif PIECE_EN_SELECTION:  # Deuxième cas : une pièce est saisie
-                ARRIVEE = position
-                coup = chess.Move(DEPART, ARRIVEE)  # On définit le mouvement
-                coup = manage_promotion(DEPART, ARRIVEE, coup, COULEUR_JOUEUR)
-                if coup in board.legal_moves:  # On regarde si il est légal
-                    coup_joueur(coup, COORDONEES_PIECE, (x, y))
-                    # On regarde si c'est un rock
-                    J_DEJA_ROCK = check_rock(
-                        coup, COULEUR_JOUEUR, J_DEJA_ROCK)
+                START = position
+            elif SELECTED_PIECE:  # Second case: a piece is picked
+                END = position
+                move = chess.Move(START, END)  # Define the move
+                move = handle_promotion(START, END, move, PLAYER_COLOR)
+                if move in board.legal_moves:  # Check if legal
+                    player_move(move, PIECE_COORDS, (x, y))
+                    # Check for castling
+                    PLAYER_CASTLED = check_castle(
+                        move, PLAYER_COLOR, PLAYER_CASTLED)
                     if board.is_game_over() is False:
                         update()
-                        coup_ordi(len(board.move_stack)) # L'ordi joue après le joueur.
+                        computer_move(len(board.move_stack)) # Computer plays after player.
 
-                PIECE_EN_SELECTION = None
-                DEPART = None
-                ARRIVEE = None
-                COORDONEES_PIECE = None
+                SELECTED_PIECE = None
+                START = None
+                END = None
+                PIECE_COORDS = None
 
     return True
 
 def main():
     """
-    Bloc principal du code, qui appelle toutes les autres fonctions
+    Main code block, calls all other functions
     """
     global screen, clock
 
-    #Initialisation
+    #Initialization
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     font = pygame.font.SysFont("Arial", 80)
     pygame.display.set_caption("Chess board")
     clock = pygame.time.Clock()
-    chess_board()
-    chess_pieces()
+    draw_chess_board()
+    draw_chess_pieces()
     running = True
 
-    # Boucle de jeu
+    # Game loop
     while running:
         for event in pygame.event.get():
-            running = jeu(event) # La boucle de jeu s'effectue
-            update() # On update l'interface constamment
-        if board.is_game_over(): # Fin de partie -> écran de fin et on quitte tout
+            running = game_loop(event) # Game loop runs
+            update() # Constantly update interface
+        if board.is_game_over(): # End of game -> end screen and quit
             end_screen(font)
             pygame.time.wait(5000)
             running = False

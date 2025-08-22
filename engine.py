@@ -1,117 +1,116 @@
 """
-    Partie du code qui s'occupe de la partie IA
+    Part of the code that handles the AI
 """
 import chess
 
-# Attribuer une valeur à chaque pièce
-valeurs = {"P": 1, "N": 3.05, "B" : 3.33, "R": 5.63, "Q": 9.5, "K": 1000}
+# Assign a value to each piece
+values = {"P": 1, "N": 3.05, "B" : 3.33, "R": 5.63, "Q": 9.5, "K": 1000}
 
-# Faire une fonction d'évaluation de position
+# Evaluation function for board position
 def eval_position(pos):
     """
-    Evalue un échiquier en lui attribuant une valeur
+    Evaluates a chessboard by assigning it a value
 
     Args:
         pos (board): position
 
     Returns:
-        float: valeur associée à la position
+        float: value associated with the position
     """
 
     # Variables
-    valeur_totale = 0
-    valeur_materielle = 0
-    valeur_tactique = 0
+    total_value = 0
+    material_value = 0
+    tactical_value = 0
 
-    # Ce bloc force l'ordinateur a agir différement si il y a échec et mat
+    # This block forces the computer to act differently if there is checkmate
     if pos.is_checkmate():
         if pos.turn:
-            valeur_totale = -10000
-            return valeur_totale
+            total_value = -10000
+            return total_value
         else:
-            valeur_totale = 10000
-            return valeur_totale
+            total_value = 10000
+            return total_value
 
-    # Valeur matérielle
-    for case in range(64):
-        piece = pos.piece_at(case)
+    # Material value
+    for square in range(64):
+        piece = pos.piece_at(square)
         if piece is not None:
-            piece_value = valeurs[str(piece).upper()]
+            piece_value = values[str(piece).upper()]
 
-            # On ajoute à la valeur_matérielle la valeur de chaque pièce, dépendamment de sa couleur
-            valeur_materielle += piece_value if (piece.color == chess.WHITE) else -piece_value
+            # Add to material_value the value of each piece, depending on its color
+            material_value += piece_value if (piece.color == chess.WHITE) else -piece_value
 
-    # Valeur tactique
-    moves_possibles = pos.legal_moves
-    # Pour chaque déplacement possible avec cette pièce, on ajoute 1 à la valeur tactique
-    for move in moves_possibles:
+    # Tactical value
+    possible_moves = pos.legal_moves
+    # For each possible move with this piece, add 1 to tactical value
+    for move in possible_moves:
         piece = pos.piece_at(move.from_square)
         if piece is not None:
-            valeur_tactique += 1 if (piece.color == chess.WHITE) else -1
+            tactical_value += 1 if (piece.color == chess.WHITE) else -1
 
-    valeur_totale = valeur_materielle + valeur_tactique * 0.1
+    total_value = material_value + tactical_value * 0.1
 
-    return valeur_totale
+    return total_value
 
 
-def meilleur_coup_alpha_beta(board, profondeur, couleur, alpha=-float("inf"), beta=float("inf")):
+def best_move_alpha_beta(board, depth, color, alpha=-float("inf"), beta=float("inf")):
     """
-    Fonction qui utilise l'algorithme minmax ainsi que l'élagage alpha beta
-    afin de calculer toutes les positions non élaguées à une profondeur de X.
+    Function that uses the minmax algorithm and alpha-beta pruning
+    to calculate all unpruned positions to a depth of X.
 
     Args:
         board (board): position
-        profondeur (int): profondeur de calcul / nombre de fois où le principe de récursivité
-        va s'éffectuer
-        couleur (booléen): couleur qui joue
-        alpha (float, optional): nombre, cherchant toujours à s'aggrandir et commençant à - l'infini
-        beta (float, optional): nombre, cherchant toujours à se rapticir, et commençant à + l'infini
+        depth (int): calculation depth / number of times recursion
+        will occur
+        color (bool): color to play
+        alpha (float, optional): number, always trying to grow and starting at -infinity
+        beta (float, optional): number, always trying to shrink, starting at +infinity
 
     Returns:
-        float: meilleure valeure
-        coup: meilleur coup, qui correspond à la meilleur valeure
+        float: best value
+        move: best move, which corresponds to the best value
     """
 
-    if profondeur == 0 or board.is_game_over():
+    if depth == 0 or board.is_game_over():
         return eval_position(board), None
 
-    # Initialisation
-    meilleur_choix = None
+    # Initialization
+    best_choice = None
 
-    # Si c'est le tour des blancs
-    if couleur is True:
-        meilleur_valeur = -float("inf")
-        # On effectue chacun des coups possibles, sur une copie de l'échiquier
+    # If it's white's turn
+    if color is True:
+        best_value = -float("inf")
+        # Perform each possible move on a copy of the board
         for move in board.legal_moves:
             board_temp = board.copy()
             board_temp.push(move)
-            # on continue d'explorer plus loin en rééxécutant cette fonction (récursivité)
-            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, False, alpha, beta)
+            # Continue exploring further by recursively calling this function
+            value_at_end, _ = best_move_alpha_beta(board_temp, depth -1, False, alpha, beta)
 
-            # On actualise la meilleur valeur, et le coup qui va avec
-            if valeur_au_bout > meilleur_valeur:
-                meilleur_valeur = valeur_au_bout
-                meilleur_choix = move
+            # Update the best value and the move that goes with it
+            if value_at_end > best_value:
+                best_value = value_at_end
+                best_choice = move
 
-            # Elagage alpha beta, qui permet d'ignorer une partie de l'arbre sous condition
-            # Ce dernier est détaillé dans le dossier et le sera à la soutenance orale
-            alpha = max(alpha, meilleur_valeur)
+            # Alpha-beta pruning, which allows ignoring part of the tree under condition
+            # This is detailed in the documentation and will be explained orally
+            alpha = max(alpha, best_value)
             if beta <= alpha:
                 break
 
-    # Si c'est le tour des noirs. Similaire à quelques signes près
+    # If it's black's turn. Similar except for a few signs
     else:
-        meilleur_valeur = float("inf")
+        best_value = float("inf")
         for move in board.legal_moves:
             board_temp = board.copy()
             board_temp.push(move)
-            valeur_au_bout, _ = meilleur_coup_alpha_beta(board_temp, profondeur -1, True, alpha, beta)
-            if valeur_au_bout < meilleur_valeur:
-                meilleur_valeur = valeur_au_bout
-                meilleur_choix = move
-            beta = min(beta, meilleur_valeur) # On sauvegarde le pire coup pour les blancs dans beta
+            value_at_end, _ = best_move_alpha_beta(board_temp, depth -1, True, alpha, beta)
+            if value_at_end < best_value:
+                best_value = value_at_end
+                best_choice = move
+            beta = min(beta, best_value) # Save the worst move for white in beta
             if beta <= alpha :
                 break
 
-    return meilleur_valeur, meilleur_choix
-    
+    return best_value, best_choice
