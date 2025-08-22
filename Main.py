@@ -27,7 +27,7 @@ ARRIVEE = None
 COORDONEES_PIECE = None
 J_DEJA_ROCK = False
 O_DEJA_ROCK = False
-opening = ouvertures.Ouverture_Noire if COULEUR_JOUEUR else ouvertures.Ouvertures_Blanche
+opening = openings.Ouverture_Noire if COULEUR_JOUEUR else openings.Ouvertures_Blanche
 opening = r.choice(opening)
 
 def chess_board():
@@ -185,14 +185,14 @@ def coup_joueur(coup, depart, arrivee):
 def coup_ordi(move_counts):
     """
     Partie du code qui gère les coups de l'ordi.
-    On regarde si on s'adapte à une ouverture présente dans ouvertures.py
+    On regarde si on s'adapte à une ouverture présente dans openings.py
     puis on utilise le fichier ai_file pour calculer le meilleur coup, on le joue
     et on update.
 
     Args:
         move_counts (int): compteur de coups dans la partie
     """
-    # Si on est au début de partie, on regarde dans les ouvertures
+    # Si on est au début de partie, on regarde dans les openings
     global J_DEJA_ROCK, O_DEJA_ROCK
     if move_counts < len(opening) and opening[move_counts + 1] is not None:
         coup_ordi = opening[move_counts + 1]
