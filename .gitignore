@@ -1,0 +1,9 @@
+# Dossiers cache de Python
+__pycache__/
+
+# Fichiers compilés Python
+*.pyc
+
+# Dossiers d'environnement virtuel
+venv/
+env/

@@ -9,9 +9,9 @@
 import random as r
 import pygame
 import chess
-import ai_file
-import traductions
-import ouvertures
+import engine
+import translations
+import openings
 
 # A modifier
 PROFONDEUR_DE_CALCUL = 2 # Inscrivez ici la difficulté allant de 2 à 4
@@ -161,7 +161,7 @@ def update_board(start, end):
 
     # Quelle pièce doit-on afficher ?
     piece = board.piece_at(chess.square(int(end_x), int(end_y)))
-    piece = traductions.traduction_piece(
+    piece = translations.traduction_piece(
         str(piece))  # Avant : Q, après : dame_blanc
 
     # On affiche la pièce aux bonnes coordonées
@@ -200,12 +200,12 @@ def coup_ordi(move_counts):
 
     # Sinon, on procède à la méthode classique
     else:
-        _, coup_ordi = ai_file.meilleur_coup_alpha_beta(
+        _, coup_ordi = engine.meilleur_coup_alpha_beta(
             board, PROFONDEUR_DE_CALCUL, COULEUR_ORDI)  # Meilleur coup
 
     board.push(coup_ordi)
     O_DEJA_ROCK = check_rock(coup_ordi, COULEUR_ORDI, O_DEJA_ROCK)
-    t = traductions.split(str(coup_ordi))
+    t = translations.split(str(coup_ordi))
     update_board(t[0], t[1])  # On le bouge graphiquement
 
 def green_circle(coordonees):
