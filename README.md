@@ -1,14 +1,32 @@
-# TM
-Travail de Maturité / Intelligence artificielle aux échecs
-Bonjour,
-Pour tester mon programme, il faut lancer le code via le fichier "main.py"
-Il sera peut-être nécéssaire de télécharger le module "pygame" et "python-chess" à l'aide des commandes : "pip install pygame", "pip install python-chess"
-Si l'on veut tester le programme à sa profondeur de calcul la plus élevée, il est recommandé d'assigner le nombre "4" à la constante "PROFONDEUR_DE_CALCUL" présente en haut du code
-Pour un temps d'attente moins long, cette constante peut être baissée à 2 ou 3.
-Pour modifier la couleur jouée par le joueur, il faut modifier la constante "COULEUR_JOUEUR". True assignera la couleur blanche et False la noire.
-Pour toute autre question, je suis joignable à l'adresse mail suivante : yoann.slmn@eduge.ch
-Bon test !
+# Chess AI Bot
+
+A chess engine with a customizable AI opponent, created as part of a Swiss "Travail de Maturité" (final high school project).
 
 
 
+## Getting Started
 
+Instructions on how to set up and run the project locally.
+
+### Prerequisites
+
+This project requires Python 3 and the following modules:
+* `pygame`
+* `python-chess`
+
+### Installation
+
+1.  Clone the repository to your local machine:
+    ```bash
+    git clone [https://github.com/ysalamin/tm-chess-bot.git](https://github.com/ysalamin/tm-chess-bot.git)
+    ```
+2.  Install the required packages using pip:
+    ```bash
+    pip install pygame python-chess
+    ```
+
+### Running the Game
+
+To start a game, run the `main.py` file from the terminal:
+```bash
+python main.py
