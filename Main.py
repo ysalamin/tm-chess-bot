@@ -15,7 +15,7 @@ import ouvertures
 
 # A modifier
 PROFONDEUR_DE_CALCUL = 2 # Inscrivez ici la difficulté allant de 2 à 4
-COULEUR_JOUEUR = True  #True = Blanc
+COULEUR_JOUEUR = True #True = Blanc, False = Noir
 
 # Autres constantes
 COULEUR_ORDI = not COULEUR_JOUEUR
@@ -309,7 +309,8 @@ def check_rock(coup, couleur, fait):
             y_square = 0 * TAILLE_CASE
 
         square = pygame.Rect(x_square, y_square, TAILLE_CASE, TAILLE_CASE)
-        if x_square/TAILLE_CASE + y_square/TAILLE_CASE % 2 == 0:
+
+        if ((x_square + y_square)/TAILLE_CASE) % 2 == 0:
             pygame.draw.rect(screen,pygame.Color(230,230,230), square)
         else:
             pygame.draw.rect(screen,pygame.Color(50,50,50), square)
@@ -381,10 +382,10 @@ def jeu(event):
                         update()
                         coup_ordi(len(board.move_stack)) # L'ordi joue après le joueur.
 
-                    PIECE_EN_SELECTION = None
-                    DEPART = None
-                    ARRIVEE = None
-                    COORDONEES_PIECE = None
+                PIECE_EN_SELECTION = None
+                DEPART = None
+                ARRIVEE = None
+                COORDONEES_PIECE = None
 
     return True
 
