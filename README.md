@@ -1,6 +1,6 @@
 # Chess AI Bot
 
-A chess engine with a customizable AI opponent, created as part of a Swiss "Travail de Maturité" (final high school project).
+A chess engine with a customizable AI opponent, created as part of a Swiss "Travail de Maturité" (final high school project). It's actually my first real project.
 
 
 
