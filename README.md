@@ -30,6 +30,7 @@ This project requires Python 3 and the following modules:
 To start a game, run the `main.py` file from the terminal:
 ```bash
 python main.py
+```
 
 ---
 ## Configuration
