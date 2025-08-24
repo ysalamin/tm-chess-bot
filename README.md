@@ -18,7 +18,7 @@ This project requires Python 3 and the following modules:
 
 1.  Clone the repository to your local machine:
     ```bash
-    git clone [https://github.com/ysalamin/tm-chess-bot.git](https://github.com/ysalamin/tm-chess-bot.git)
+    git clone https://github.com/ysalamin/tm-chess-bot.git
     ```
 2.  Install the required packages using pip:
     ```bash
@@ -30,3 +30,17 @@ This project requires Python 3 and the following modules:
 To start a game, run the `main.py` file from the terminal:
 ```bash
 python main.py
+
+---
+## Configuration
+
+You can easily customize the game by modifying the constants at the top of the `main.py` file:
+
+* **`CALCULATION_DEPTH`**: Sets the AI's difficulty by controlling its search depth.
+    * `2`: Beginner
+    * `3`: Medium
+    * `4`: Hard (can be slow)
+
+* **`PLAYER_COLOR`**: Determines the color you play as.
+    * `True`: Player is White.
+    * `False`: Player is Black.
